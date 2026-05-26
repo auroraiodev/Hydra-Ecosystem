@@ -1,14 +1,14 @@
 # ============================================================
 # Dockerfile — Hydra FE (Next.js + NestJS)
-# Single sequential builder stage to avoid OOM from parallel builds.
+# Sequential builds + workspace root to avoid OOM and Turbopack
+# redirect errors when resolving the arcane-vault-ui local package.
 # ============================================================
 
 # ── Stage 1: Build ───────────────────────────────────────────
 FROM oven/bun:1.3 AS builder
 WORKDIR /app
 
-# NEXT_PUBLIC_* vars must be declared as build args — they are
-# baked into the JS bundle at build time, not read at runtime.
+# NEXT_PUBLIC_* vars are baked into the JS bundle at build time.
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_ADMIN_URL
@@ -21,15 +21,19 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_SELLER_URL=$NEXT_PUBLIC_SELLER_URL \
     NEXT_PUBLIC_AUTH_SERVICE_URL=$NEXT_PUBLIC_AUTH_SERVICE_URL
 
-# ── 1. Frontend (Next.js) ─────────────────────────────────────
-COPY app/package.json app/bun.lock* ./app/
-COPY theme/package.json ./theme/
+# ── 1. Install workspace deps ─────────────────────────────────
+# A synthetic workspace root forces bun to create a proper symlink for
+# arcane-vault-ui → theme instead of a bun-internal redirect file.
+# Turbopack cannot parse bun's redirect format; symlinks work fine.
+COPY theme/package.json ./theme/package.json
+COPY app/package.json ./app/package.json
+RUN printf '{"private":true,"workspaces":["app","theme"]}' > package.json && bun install
+
+# ── 2. Frontend source + build ────────────────────────────────
 COPY app/ ./app/
 COPY theme/ ./theme/
 
 WORKDIR /app/app
-RUN bun install
-
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     NODE_OPTIONS="--max-old-space-size=1536" \
@@ -37,14 +41,13 @@ ENV NODE_ENV=production \
 
 RUN rm -rf .next && bun run build
 
-# ── 2. Backend (NestJS) — runs after frontend finishes ────────
+# ── 3. Backend (NestJS) — runs after frontend finishes ────────
 WORKDIR /app
 COPY backend/package.json backend/bun.lock* ./backend/
 COPY backend/ ./backend/
 
 WORKDIR /app/backend
 RUN bun install
-
 RUN bunx prisma generate && bun scripts/fix-prisma-client-resolution.cjs || true
 
 ENV NODE_OPTIONS="--max-old-space-size=1024"
