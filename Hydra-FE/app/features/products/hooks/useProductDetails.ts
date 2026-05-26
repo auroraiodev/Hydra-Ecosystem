@@ -187,29 +187,27 @@ export function useProductDetails(
             },
           });
         } else {
-          if (!product || product.price <= 0) {
-            try {
-              const nameFromUrl = sp?.get('name') ?? undefined;
-              const languageFromUrl = sp?.get('language') ?? undefined;
-              const data = await getProduct(realId, nameFromUrl, languageFromUrl);
-              let resolvedPrice = data.price ?? (data as { finalPrice?: number }).finalPrice ?? productFromParams?.price ?? 0;
-              if (resolvedPrice <= 0) {
-                const fetchedPriceVal = await fetchValuedPrice(realId, data.name || data.cardName || nameFromUrl, languageFromUrl);
-                if (fetchedPriceVal > 0) {
-                  resolvedPrice = fetchedPriceVal;
-                }
+          try {
+            const nameFromUrl = sp?.get('name') ?? undefined;
+            const languageFromUrl = sp?.get('language') ?? undefined;
+            const data = await getProduct(realId, nameFromUrl, languageFromUrl);
+            let resolvedPrice = data.price ?? (data as { finalPrice?: number }).finalPrice ?? productFromParams?.price ?? 0;
+            if (resolvedPrice <= 0) {
+              const fetchedPriceVal = await fetchValuedPrice(realId, data.name || data.cardName || nameFromUrl, languageFromUrl);
+              if (fetchedPriceVal > 0) {
+                resolvedPrice = fetchedPriceVal;
               }
-              dispatch({
-                type: 'SET_PRODUCT',
-                payload: {
-                  ...data,
-                  price: resolvedPrice,
-                },
-              });
-            } catch {
-              if (productFromParams) dispatch({ type: 'SET_PRODUCT', payload: productFromParams });
-              else dispatch({ type: 'SET_ERROR', payload: 'Producto no encontrado' });
             }
+            dispatch({
+              type: 'SET_PRODUCT',
+              payload: {
+                ...data,
+                price: resolvedPrice,
+              },
+            });
+          } catch {
+            if (productFromParams) dispatch({ type: 'SET_PRODUCT', payload: productFromParams });
+            else dispatch({ type: 'SET_ERROR', payload: 'Producto no encontrado' });
           }
         }
         dispatch({ type: 'SET_LOADING', payload: false });
