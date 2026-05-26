@@ -30,11 +30,7 @@ export function setupCors(app: INestApplication): void {
 
   // Production / QA: strict allowlist from environment variables.
   // FRONTEND_URL, ADMIN_URL, SELLER_URL may each hold a comma-separated list.
-  const allowedOrigins = [
-    process.env.FRONTEND_URL,
-    process.env.ADMIN_URL,
-    process.env.SELLER_URL,
-  ]
+  const allowedOrigins = [process.env.FRONTEND_URL, process.env.ADMIN_URL, process.env.SELLER_URL]
     .filter(Boolean)
     .flatMap((v) => v!.split(',').map((u) => u.trim()))
     .filter(Boolean);

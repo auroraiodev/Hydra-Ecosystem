@@ -7,7 +7,7 @@ export function setupSecurity(app: INestApplication): void {
   const isDev = process.env.NODE_ENV === 'development';
   const appUrl = process.env.FRONTEND_URL || 'https://hydracollect.com';
   const adminUrl = process.env.ADMIN_URL || 'https://admin.hydracollect.com';
-  const sellerUrl = process.env.SELLER_URL || 'https://seller.hydracollect.com';
+  const sellerUrl = process.env.SELLER_URL || 'https://stores.hydracollect.com';
   const apiUrl = process.env.API_URL || 'https://api.hydracollect.com';
 
   // Content-Security-Policy source lists

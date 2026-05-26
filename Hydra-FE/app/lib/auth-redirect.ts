@@ -70,14 +70,14 @@ export function getAppUrls(): typeof APP_URLS {
     return {
       fe: getEnvUrl(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_FRONTEND_URL, `${protocol}//qa.hydracollect.com`),
       admin: getEnvUrl(process.env.NEXT_PUBLIC_ADMIN_URL, `${protocol}//qa-admin.hydracollect.com`),
-      seller: getEnvUrl(process.env.NEXT_PUBLIC_SELLER_URL, `${protocol}//qa-seller.hydracollect.com`),
+      seller: getEnvUrl(process.env.NEXT_PUBLIC_SELLER_URL, `${protocol}//qa-stores.hydracollect.com`),
     };
   }
 
   return {
     fe: getEnvUrl(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_FRONTEND_URL, `${protocol}//hydracollect.com`),
     admin: getEnvUrl(process.env.NEXT_PUBLIC_ADMIN_URL, `${protocol}//admin.hydracollect.com`),
-    seller: getEnvUrl(process.env.NEXT_PUBLIC_SELLER_URL, `${protocol}//seller.hydracollect.com`),
+    seller: getEnvUrl(process.env.NEXT_PUBLIC_SELLER_URL, `${protocol}//stores.hydracollect.com`),
   };
 }
 
@@ -125,7 +125,7 @@ export function detectOriginApp(): OriginApp {
   if (port === '3000') return 'fe';
 
   if (hostname.includes('admin')) return 'admin';
-  if (hostname.includes('seller')) return 'seller';
+  if (hostname.includes('seller') || hostname.includes('stores')) return 'seller';
   return 'fe';
 }
 

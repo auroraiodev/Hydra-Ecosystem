@@ -12,12 +12,12 @@ Hydra-Admin/        # Merchant & admin management dashboard
   backend/          # NestJS 11 — port 3002
   theme/            # arcane-vault-ui design system (local dev)
 
-Hydra-FE/           # Customer marketplace (hydracollect.com)
+Hydra-Shop/         # Customer marketplace (hydracollect.com)
   app/              # Next.js 16 (App Router + Turbopack, bun) — port 3000
   backend/          # NestJS 11 — port 3002
   theme/            # arcane-vault-ui design system (local dev)
 
-Hydra-Seller/       # Seller dashboard (seller.hydracollect.com)
+Hydra-Stores/       # Seller dashboard (stores.hydracollect.com)
   app/              # Next.js 16 (App Router, bun) — port 3003
   backend/          # NestJS 11 — port 3002
   theme/            # arcane-vault-ui design system (local dev)
@@ -29,7 +29,7 @@ Each project root has a `package.json` with unified scripts that run both Next.j
 
 ## Dev Commands
 
-Run from each project's root directory (`Hydra-Admin/`, `Hydra-FE/`, `Hydra-Seller/`):
+Run from each project's root directory (`Hydra-Admin/`, `Hydra-Shop/`, `Hydra-Stores/`):
 
 ```bash
 bun run dev          # Start both Next.js + NestJS in watch mode
@@ -113,9 +113,9 @@ Each project uses a root-level `.env.local` for local dev (ignored by git). Copy
 Key local ports to know:
 | Service | Port |
 |---|---|
-| Hydra-FE (Next.js) | 3000 |
+| Hydra-Shop (Next.js) | 3000 |
 | Hydra-Admin (Next.js) | 3001 |
 | NestJS backends | 3002 |
-| Hydra-Seller (Next.js) | 3003 |
+| Hydra-Stores (Next.js) | 3003 |
 | mtgsrc | 3006 |
 | Redis | 6379 |

@@ -162,7 +162,7 @@ export class AuthController {
       return (
         process.env.HYDRA_SELLER_URL ||
         process.env.SELLER_URL ||
-        (isProduction ? 'https://seller.hydracollect.com' : 'http://localhost:3003')
+        (isProduction ? 'https://stores.hydracollect.com' : 'http://localhost:3003')
       );
     }
     return (

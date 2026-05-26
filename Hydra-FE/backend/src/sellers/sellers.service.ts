@@ -252,7 +252,14 @@ export class SellersService {
     };
   }
 
-  async getOrders(sellerId: string, page: number = 1, limit: number = 20, filter: any = {}, sortBy?: string, sortDir: 'asc' | 'desc' = 'desc') {
+  async getOrders(
+    sellerId: string,
+    page: number = 1,
+    limit: number = 20,
+    filter: any = {},
+    sortBy?: string,
+    sortDir: 'asc' | 'desc' = 'desc',
+  ) {
     const where: any = {
       items: {
         some: {

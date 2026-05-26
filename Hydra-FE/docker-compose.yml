@@ -1,12 +1,12 @@
 version: "3.9"
 
 services:
-  hydra-fe-app:
+  hydra-shop-app:
     build:
       context: .
       args:
         NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL:-http://localhost:3002}"
-    container_name: hydra-fe-app
+    container_name: hydra-shop-app
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -81,7 +81,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: hydra-fe-redis
+    container_name: hydra-shop-redis
     restart: unless-stopped
     ports:
       - "6379:6379"

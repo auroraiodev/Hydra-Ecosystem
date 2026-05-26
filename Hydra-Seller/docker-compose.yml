@@ -1,7 +1,7 @@
-name: hydra-seller
+name: hydra-stores
 
 services:
-  hydra-seller-app:
+  hydra-stores-app:
     build:
       context: .
       dockerfile: Dockerfile

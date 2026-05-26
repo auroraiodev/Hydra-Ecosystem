@@ -63,9 +63,12 @@ export class SellersController {
     @Query('sortDir') sortDir?: string,
   ) {
     return this.sellersService.getOrders(
-      user.id, Number(page), Number(limit),
+      user.id,
+      Number(page),
+      Number(limit),
       { status, search },
-      sortBy, (sortDir === 'asc' ? 'asc' : 'desc'),
+      sortBy,
+      sortDir === 'asc' ? 'asc' : 'desc',
     );
   }
 

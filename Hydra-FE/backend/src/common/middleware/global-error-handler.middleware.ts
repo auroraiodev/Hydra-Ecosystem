@@ -35,7 +35,7 @@ export class GlobalErrorHandlerMiddleware implements NestMiddleware {
         message = (response as any).message || message;
         details = (response as any).details || details;
       } else {
-        message = response as string;
+        message = response;
       }
 
       errorCode = this.getErrorCodeFromStatus(statusCode);

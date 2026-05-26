@@ -1240,7 +1240,15 @@ export class OrdersService {
   /**
    * Get all orders (Admin/Seller)
    */
-  async getAllOrders(page = 1, limit = 10, search?: string, status?: string, userId?: string, sortBy?: string, sortDir: 'asc' | 'desc' = 'desc') {
+  async getAllOrders(
+    page = 1,
+    limit = 10,
+    search?: string,
+    status?: string,
+    userId?: string,
+    sortBy?: string,
+    sortDir: 'asc' | 'desc' = 'desc',
+  ) {
     this.logger.log(
       `getAllOrders: Fetching all orders (page: ${page}, limit: ${limit}, search: ${search}, status: ${status}, userId: ${userId})...`,
     );

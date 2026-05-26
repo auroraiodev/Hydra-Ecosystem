@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## hydra-fe: Customer Marketplace
+## hydra-shop: Customer Marketplace
 
 Next.js 16 (App Router + Turbopack) storefront for the Hydra TCG platform.
 

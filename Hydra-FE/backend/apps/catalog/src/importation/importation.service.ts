@@ -949,7 +949,7 @@ export class ImportationService {
 
         return {
           id: null,
-          importationId: item.product,
+          importationId: String(item.product),
           cardName: item.cardName,
           cardNumber: item.cardNumber,
           expansion: item.set || item.expansionCode || '',

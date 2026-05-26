@@ -1,5 +1,5 @@
 # ============================================================
-# Dockerfile — Hydra FE (Next.js + NestJS)
+# Dockerfile — Hydra Shop (Next.js + NestJS)
 # The project workspace is structured to mirror the original pnpm monorepo
 # layout (apps/hydra-fe, apps/theme) so that next.config.ts's
 # outputFileTracingRoot: path.join(__dirname, '../../')

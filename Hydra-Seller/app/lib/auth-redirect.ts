@@ -77,14 +77,14 @@ export function getAppUrls(): typeof APP_URLS {
     return {
       fe: getEnvUrl(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_FRONTEND_URL, `${protocol}//hydra-fe.netlify.app`),
       admin: getEnvUrl(process.env.NEXT_PUBLIC_ADMIN_URL, `${protocol}//hydra-adm.netlify.app`),
-      seller: getEnvUrl(process.env.NEXT_PUBLIC_SELLER_URL, `${protocol}//hydra-seller.netlify.app`),
+      seller: getEnvUrl(process.env.NEXT_PUBLIC_SELLER_URL, `${protocol}//hydra-stores.netlify.app`),
     };
   }
 
   return {
     fe: getEnvUrl(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_FRONTEND_URL, `${protocol}//hydracollect.com`),
     admin: getEnvUrl(process.env.NEXT_PUBLIC_ADMIN_URL, `${protocol}//admin.hydracollect.com`),
-    seller: getEnvUrl(process.env.NEXT_PUBLIC_SELLER_URL, `${protocol}//seller.hydracollect.com`),
+    seller: getEnvUrl(process.env.NEXT_PUBLIC_SELLER_URL, `${protocol}//stores.hydracollect.com`),
   };
 }
 
@@ -137,7 +137,7 @@ export function detectOriginApp(): OriginApp {
 
   // Production: check hostname patterns
   if (hostname.includes('admin')) return 'admin';
-  if (hostname.includes('seller')) return 'seller';
+  if (hostname.includes('seller') || hostname.includes('stores')) return 'seller';
   return 'fe';
 }
 
