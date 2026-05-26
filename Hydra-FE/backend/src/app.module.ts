@@ -46,6 +46,7 @@ import { ImportationModule } from '../apps/catalog/src/importation/importation.m
 import { SearchModule } from '../apps/catalog/src/search/search.module.js';
 // Monolithic fallback for Auth microservice Google OAuth routes (required for serverless/Netlify deploys)
 import { GoogleOauthModule } from './auth/google-oauth.module.js';
+import { ImagesModule } from './images/images.module.js';
 
 @Module({
   imports: [
@@ -85,6 +86,8 @@ import { GoogleOauthModule } from './auth/google-oauth.module.js';
     TcgsModule,
     ImportationModule,
     SearchModule,
+    // Images module (proxies external card images through the backend)
+    ImagesModule,
     // Auth microservice Google OAuth routes integrated for monolithic fallback
     GoogleOauthModule,
   ],
