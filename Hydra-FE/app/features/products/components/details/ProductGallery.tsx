@@ -13,6 +13,7 @@ import type { ProductGalleryProps } from '../../types';
 export function ProductGallery({ images, productName, isFoil }: ProductGalleryProps) {
   const [thumbsApi, setThumbsApi] = useState<CarouselApi>();
   const [loadedIndices, setLoadedIndices] = useState<Record<number, boolean>>({});
+  const [errorIndices, setErrorIndices] = useState<Record<number, boolean>>({});
 
   const { currentIndex, next, prev, goTo, pause, resume } = useCustomCarousel({
     totalSlides: images.length,
@@ -43,22 +44,33 @@ export function ProductGallery({ images, productName, isFoil }: ProductGalleryPr
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5, ease: 'easeInOut' }}
                   >
-                    {!loadedIndices[index] && (
+                    {!loadedIndices[index] && !errorIndices[index] && (
                       <div className="absolute inset-0 flex items-center justify-center z-10">
                         <LoadingIcon size="lg" />
                       </div>
                     )}
-                    <Image
-                      src={img}
-                      alt={`${productName} - Vista detallada ${index + 1} de Magic México | Hydra`}
-                      fill
-                      sizes="(max-width: 768px) calc(100vw - 96px), (max-width: 1024px) 45vw, 30vw"
-                      className={`object-contain transition-opacity duration-500 ${
-                        loadedIndices[index] ? 'opacity-100' : 'opacity-0'
-                      }`}
-                      priority={index === 0}
-                      onLoad={() => setLoadedIndices((prev) => ({ ...prev, [index]: true }))}
-                    />
+                    {errorIndices[index] ? (
+                      <div className="absolute inset-0 flex items-center justify-center text-white/40 font-medium">
+                        Sin imagen
+                      </div>
+                    ) : (
+                      <Image
+                        src={img}
+                        alt={`${productName} - Vista detallada ${index + 1} de Magic México | Hydra`}
+                        fill
+                        unoptimized={img.startsWith('/api/images/external')}
+                        sizes="(max-width: 768px) calc(100vw - 96px), (max-width: 1024px) 45vw, 30vw"
+                        className={`object-contain transition-opacity duration-500 ${
+                          loadedIndices[index] ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        priority={index === 0}
+                        onLoad={() => setLoadedIndices((prev) => ({ ...prev, [index]: true }))}
+                        onError={() => {
+                          setLoadedIndices((prev) => ({ ...prev, [index]: true }));
+                          setErrorIndices((prev) => ({ ...prev, [index]: true }));
+                        }}
+                      />
+                    )}
                   </m.div>
                 )
             )}
