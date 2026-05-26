@@ -5,7 +5,7 @@ import { WISHLIST_KEY } from '../constants';
 import { readWishlistCache, writeWishlistCache } from '../utils';
 
 // Only standard UUID v4 strings are valid product IDs in our Postgres schema.
-// Hareruya composite IDs (e.g. "98097-Inglés-7") must never reach the batch endpoint.
+// Importation composite IDs (e.g. "98097-Inglés-7") must never reach the batch endpoint.
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isValidUuid = (id: string) => UUID_REGEX.test(id);
 
@@ -53,7 +53,7 @@ export function useWishlist() {
       if (stored) {
         try {
           const parsed: string[] = JSON.parse(stored);
-          // Strip any stale non-UUID entries (e.g. legacy Hareruya composite IDs)
+          // Strip any stale non-UUID entries (e.g. legacy importation composite IDs)
           const cleaned = parsed.filter(isValidUuid);
           if (cleaned.length !== parsed.length) {
             // Persist the cleaned list so subsequent loads are clean too
@@ -74,7 +74,7 @@ export function useWishlist() {
   const toggleWishlist = useCallback(
     (productId: string, productData?: CardData) => {
       if (!isAuthenticated) return;
-      // Never persist composite Hareruya IDs — only UUIDs map to Postgres rows
+      // Never persist composite importation IDs — only UUIDs map to Postgres rows
       if (!isValidUuid(productId)) return;
       const removing = wishlist.includes(productId);
       const newWishlist = removing
@@ -102,7 +102,7 @@ export function useWishlist() {
   const addToWishlist = useCallback(
     (productId: string, productData?: CardData) => {
       if (!isAuthenticated) return;
-      // Never persist composite Hareruya IDs — only UUIDs map to Postgres rows
+      // Never persist composite importation IDs — only UUIDs map to Postgres rows
       if (!isValidUuid(productId)) return;
       if (wishlist.includes(productId)) return;
       const newWishlist = [...wishlist, productId];

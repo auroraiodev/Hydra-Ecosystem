@@ -17,7 +17,7 @@ import { type ImportItem, ITEM_STATUSES, STATUS_COLORS } from './types';
 
 // ─── Normalization Utilities ──────────────────────────────────────────────────
 
-const HARERUYA_LANG: Record<string, string> = {
+const IMPORTATION_LANG: Record<string, string> = {
   '1': 'JP', '2': 'EN', '3': 'FR', '4': 'CS', '5': 'FR', '6': 'DE',
   '7': 'IT', '8': 'KO', '9': 'PT', '10': 'RU', '11': 'ES', '12': 'EN',
 };
@@ -35,7 +35,7 @@ function normalizeLanguage(raw: unknown): string {
   if (raw == null) return '';
   const s = String(raw).trim();
   if (!s) return '';
-  if (HARERUYA_LANG[s]) return HARERUYA_LANG[s];
+  if (IMPORTATION_LANG[s]) return IMPORTATION_LANG[s];
   if (ENUM_LANG[s.toUpperCase()]) return ENUM_LANG[s.toUpperCase()];
   if (SPANISH_LANG[s]) return SPANISH_LANG[s];
   return s.length <= 3 ? s.toUpperCase() : s;

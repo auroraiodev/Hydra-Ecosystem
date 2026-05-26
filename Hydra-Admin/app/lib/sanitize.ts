@@ -56,7 +56,6 @@ const ALLOWED_IMAGE_HOSTS = [
   /^m\.media-amazon\.com$/,
   /^images\.unsplash\.com$/,
   /^[a-z0-9-.]+\.sslip\.io$/,
-  /^files\.hareruyamtg\.com$/,
   /^localhost$/,
   /^127\.0\.0\.1$/,
 ];

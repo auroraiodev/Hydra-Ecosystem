@@ -18194,9 +18194,9 @@
                             "item": [
                                 {
                                     "id": "dbd042bf-8ae8-464b-adcd-9490920d7e23",
-                                    "name": "Get a product by its importation (Hareruya) ID",
+                                    "name": "Get a product by its importation ID",
                                     "request": {
-                                        "name": "Get a product by its importation (Hareruya) ID",
+                                        "name": "Get a product by its importation ID",
                                         "description": {},
                                         "url": {
                                             "path": [
@@ -18234,7 +18234,7 @@
                                                     "key": "importationId",
                                                     "disabled": false,
                                                     "description": {
-                                                        "content": "(Required) Hareruya / importation numeric ID",
+                                                        "content": "(Required) Importation numeric ID",
                                                         "type": "text/plain"
                                                     }
                                                 }
@@ -18282,7 +18282,7 @@
                                                         {
                                                             "disabled": false,
                                                             "description": {
-                                                                "content": "(Required) Hareruya / importation numeric ID",
+                                                                "content": "(Required) Importation numeric ID",
                                                                 "type": "text/plain"
                                                             },
                                                             "type": "any",
@@ -18337,7 +18337,7 @@
                                                         {
                                                             "disabled": false,
                                                             "description": {
-                                                                "content": "(Required) Hareruya / importation numeric ID",
+                                                                "content": "(Required) Importation numeric ID",
                                                                 "type": "text/plain"
                                                             },
                                                             "type": "any",

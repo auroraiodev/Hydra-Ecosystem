@@ -26,7 +26,6 @@ const SearchResultSchema = z.object({
   surgeFoil: z.boolean().nullable().optional(),
   tags: z.array(z.any()).nullable().optional(),
   variant: z.string().nullable().optional(),
-  hareruyaId: z.string().nullable().optional(),
   basePriceJPY: z.number().nullable().optional(),
   basePriceMXN: z.number().nullable().optional(),
   importFeeMXN: z.number().nullable().optional(),

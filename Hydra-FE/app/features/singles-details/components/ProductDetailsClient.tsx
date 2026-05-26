@@ -45,7 +45,7 @@ function ProductDetailsContent({
     );
     if (isUuid && window.location.search) {
       const enrichmentParams = [
-        'hareruyaId',
+        'importationId',
         'name',
         'price',
         'img',

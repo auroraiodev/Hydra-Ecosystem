@@ -34,6 +34,7 @@ import { NotifyClientModule } from './notify-client/notify-client.module.js';
 import { FeatureFlagsModule } from './feature-flags/feature-flags.module.js';
 import { MaintenanceGuard } from './feature-flags/maintenance.guard.js';
 import { BannersModule } from './banners/banners.module.js';
+import { ModalModule } from './modal/modal.module.js';
 // Monolithic fallback for Catalog microservice routes (required for serverless/Netlify deploys)
 import { ProductsModule } from '../apps/catalog/src/products/products.module.js';
 import { CategoriesModule } from '../apps/catalog/src/categories/categories.module.js';
@@ -50,6 +51,7 @@ import { GoogleOauthModule } from './auth/google-oauth.module.js';
   imports: [
     NotifyClientModule,
     BannersModule,
+    ModalModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

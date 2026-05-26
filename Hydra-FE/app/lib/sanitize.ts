@@ -46,10 +46,9 @@ const ALLOWED_IMAGE_HOSTS = [
   /^[a-z0-9-]+\.scryfall\.com$/,
   /^lh3\.googleusercontent\.com$/,
   /^[a-z0-9-]+\.googleusercontent\.com$/,
-  /^[a-z0-9-]+\.hareruyamtg\.com$/,
+  /^[a-z0-9-]+\.importationmtg\.com$/,
   /^m\.media-amazon\.com$/,
   /^images\.unsplash\.com$/,
-  /^files\.hareruyamtg\.com$/,
 ];
 
 export function isSafeImageUrl(url: string | null | undefined): boolean {

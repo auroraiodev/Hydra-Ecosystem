@@ -91,7 +91,7 @@ export async function proxy(request: NextRequest) {
     ${scriptSrc};
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com;
-    img-src 'self' data: blob: ${BACKEND_URL} http://localhost:3002 http://127.0.0.1:3002 https://lh3.googleusercontent.com https://*.googleusercontent.com https://html.tailus.io https://svgs.scryfall.io https://files.hareruyamtg.com https://img.global.userapi.com https://m.media-amazon.com https://images.unsplash.com;
+    img-src 'self' data: blob: ${BACKEND_URL} http://localhost:3002 http://127.0.0.1:3002 https://lh3.googleusercontent.com https://*.googleusercontent.com https://html.tailus.io https://svgs.scryfall.io https://img.global.userapi.com https://m.media-amazon.com https://images.unsplash.com;
     ${connectSrc};
     frame-src 'self' https://*.mercadopago.com https://*.mercadopago.com.mx https://*.mercadolibre.com;
     worker-src 'self' blob:;

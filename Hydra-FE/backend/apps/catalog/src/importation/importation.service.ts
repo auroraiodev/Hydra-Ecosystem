@@ -4,7 +4,7 @@ import { PrismaService } from '@hydra/database';
 
 export interface ImportationPricingResult {
   productId: string;
-  realProductId?: string; // actual Hareruya variant ID (may differ from requested productId)
+  realProductId?: string; // actual importation variant ID (may differ from requested productId)
   name: string;
   title: string;
   price: number;
@@ -78,9 +78,9 @@ export interface ImportationSearchResult {
   storeLogo: string | null;
 }
 
-// Hareruya language code mapping
+// Importation language code mapping
 // 1 = Japanese, 2 = English, 12 = English (alternate)
-const HARERUYA_LANGUAGE_MAP: Record<string, string> = {
+const IMPORTATION_LANGUAGE_MAP: Record<string, string> = {
   '1': 'JAPANESE',
   '2': 'ENGLISH',
   '3': 'FRENCH',
@@ -136,7 +136,7 @@ export class ImportationService {
     const productId = (doc as any).productId || doc.product;
     const rawPrice = parseInt(doc.price) || 0;
     const stock = parseInt(doc.stock) || 0;
-    // Handle both raw Hareruya format (foil_flg: "1") and pre-processed format (isFoil: boolean)
+    // Handle both raw importation format (foil_flg: "1") and pre-processed format (isFoil: boolean)
     const _isFoil = (doc as any).isFoil === true || doc.foil_flg === '1';
 
     // Clean the card name
@@ -190,7 +190,7 @@ export class ImportationService {
     }
 
     // Determine language
-    const languageEnum = HARERUYA_LANGUAGE_MAP[doc.language] || HARERUYA_LANGUAGE_MAP['2'];
+    const languageEnum = IMPORTATION_LANGUAGE_MAP[doc.language] || IMPORTATION_LANGUAGE_MAP['2'];
     const language = languageEnum || 'ENGLISH';
     const languageCode = doc.language === '1' ? 'JP' : 'EN';
 
@@ -311,7 +311,7 @@ export class ImportationService {
   }
 
   /**
-   * Get browser-like headers for API requests (deprecated, now handled by Hareruya service)
+   * Get browser-like headers for API requests (deprecated, now handled by importation service)
    */
   private getBrowserHeaders(_refererUrl?: string): Record<string, string> {
     return {};
@@ -766,7 +766,7 @@ export class ImportationService {
     const stockCount = parseInt(doc.stock) || 0;
 
     // Map Importation language to Spanish display name
-    const importationLanguage = HARERUYA_LANGUAGE_MAP[doc.language] || 'ENGLISH';
+    const importationLanguage = IMPORTATION_LANGUAGE_MAP[doc.language] || 'ENGLISH';
     const languageMap: Record<string, string> = {
       JAPANESE: 'Japonés',
       ENGLISH: 'Inglés',
@@ -938,7 +938,7 @@ export class ImportationService {
           CHINESE: 'Chino',
         };
 
-        const resolvedLang = HARERUYA_LANGUAGE_MAP[item.language] || item.language;
+        const resolvedLang = IMPORTATION_LANGUAGE_MAP[item.language] || item.language;
         const languageDisplayName = languageMap[resolvedLang] || resolvedLang;
 
         const priceMxnImport = item.price_mxn_importation || item.finalPrice || item.price_mxn || 0;

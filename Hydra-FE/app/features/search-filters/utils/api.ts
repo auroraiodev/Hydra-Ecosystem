@@ -160,7 +160,7 @@ interface BatchItem {
   expansion?: string;
   product_name_en?: string;
   variant?: string;
-  hareruyaId?: string;
+  importationId?: string;
   cardNumber?: string;
   basePriceMXN?: number;
   importFeeMXN?: number;
@@ -252,7 +252,7 @@ export async function getBatchSingles(ids: string[]): Promise<CardData[]> {
           : undefined,
       expansion: item.expansion ? String(item.expansion) : undefined,
       variant: item.variant ? String(item.variant) : undefined,
-      hareruyaId: item.hareruyaId ? String(item.hareruyaId) : null,
+      importationId: item.importationId ? String(item.importationId) : null,
       cardNumber: item.cardNumber ? String(item.cardNumber) : undefined,
       finalPrice: item.finalPrice ? Number(item.finalPrice) : undefined,
       basePriceMXN: item.basePriceMXN ? Number(item.basePriceMXN) : undefined,

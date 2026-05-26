@@ -139,7 +139,7 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://svgs.scryfall.io" />
-        <link rel="dns-prefetch" href="https://files.hareruyamtg.com" />
+        <link rel="dns-prefetch" href="https://www.importationmtg.com" />
         <link rel="dns-prefetch" href="https://m.media-amazon.com" />
       </head>
       <body className="font-display antialiased bg-vault-bg text-vault-text transition-colors duration-300">

@@ -46,7 +46,6 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.hydracollect.com', pathname: '/**' },
       { protocol: 'https', hostname: '*.importationmtg.com', pathname: '/**' },
       { protocol: 'https', hostname: 'importationmtg.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'files.hareruyamtg.com', pathname: '/**' },
     ],
   },
 
@@ -69,7 +68,7 @@ const nextConfig = {
         : "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self'",
-      "img-src 'self' data: blob: http://localhost:3002 http://127.0.0.1:3002 https://api.hydracollect.com https://*.hydracollect.com https://lh3.googleusercontent.com https://*.googleusercontent.com https://*.supabase.co https://*.scryfall.com https://*.scryfall.io https://*.media-amazon.com https://*.importationmtg.com https://importationmtg.com https://*.sslip.io https://files.hareruyamtg.com",
+      "img-src 'self' data: blob: http://localhost:3002 http://127.0.0.1:3002 https://api.hydracollect.com https://*.hydracollect.com https://lh3.googleusercontent.com https://*.googleusercontent.com https://*.supabase.co https://*.scryfall.com https://*.scryfall.io https://*.media-amazon.com https://*.importationmtg.com https://importationmtg.com https://*.sslip.io",
       // Allow connections to the backend API (env-derived so QA/prod/dev all work)
       `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.scryfall.com ${apiOrigin} ${apiWssOrigin} ${isDev ? 'http://localhost:* ws://localhost:* http://127.0.0.1:* ws://127.0.0.1:*' : ''}`.trim(),
       "frame-src 'none'",

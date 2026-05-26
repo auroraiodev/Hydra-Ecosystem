@@ -42,7 +42,6 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.scryfall.com', pathname: '/**' },
       { protocol: 'https', hostname: '*.scryfall.io', pathname: '/**' },
       { protocol: 'https', hostname: '*.media-amazon.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'files.hareruyamtg.com', pathname: '/**' },
     ],
   },
 
@@ -57,7 +56,7 @@ const nextConfig = {
         : "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self'",
-      "img-src 'self' data: blob: http://localhost:3002 http://127.0.0.1:3002 https://api.hydracollect.com https://*.hydracollect.com https://lh3.googleusercontent.com https://*.googleusercontent.com https://*.supabase.co https://*.scryfall.com https://*.scryfall.io https://*.media-amazon.com https://files.hareruyamtg.com",
+      "img-src 'self' data: blob: http://localhost:3002 http://127.0.0.1:3002 https://api.hydracollect.com https://*.hydracollect.com https://lh3.googleusercontent.com https://*.googleusercontent.com https://*.supabase.co https://*.scryfall.com https://*.scryfall.io https://*.media-amazon.com",
       // Allow connections to the backend API explicitly in production
       `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.scryfall.com https://api.hydracollect.com wss://api.hydracollect.com ${isDev ? 'http://localhost:* ws://localhost:* http://127.0.0.1:* ws://127.0.0.1:*' : ''}`,
       "frame-src 'none'",

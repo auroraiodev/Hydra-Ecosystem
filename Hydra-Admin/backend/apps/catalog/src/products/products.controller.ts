@@ -106,7 +106,7 @@ export class ProductsController {
     if (!Array.isArray(body.ids) || body.ids.length > 50) {
       throw new BadRequestException('ids must be an array with at most 50 items');
     }
-    // Strip any non-UUID values (e.g. Hareruya composite IDs stored in
+    // Strip any non-UUID values (e.g. importation composite IDs stored in
     // client localStorage) before forwarding to the service/Prisma layer.
     const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const validIds = body.ids.filter((id) => UUID_REGEX.test(id));
@@ -320,8 +320,8 @@ export class ProductsController {
 
   @Get('importation/:importationId')
   @Public()
-  @ApiOperation({ summary: 'Get a product by its importation (Hareruya) ID' })
-  @ApiParam({ name: 'importationId', description: 'Hareruya / importation numeric ID' })
+  @ApiOperation({ summary: 'Get a product by its importation ID' })
+  @ApiParam({ name: 'importationId', description: 'importation numeric ID' })
   @ApiQuery({ name: 'cardName', required: false, type: String })
   @ApiQuery({ name: 'language', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Product found' })

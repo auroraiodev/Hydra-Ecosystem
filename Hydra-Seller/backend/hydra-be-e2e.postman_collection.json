@@ -11141,7 +11141,7 @@
           ]
         },
         {
-          "name": "GET /singles/importation/{importationId} — Get a product by its importation (Hareruya) ID",
+          "name": "GET /singles/importation/{importationId} — Get a product by its importation ID",
           "request": {
             "method": "GET",
             "header": [
@@ -11166,7 +11166,7 @@
                 {
                   "key": "importationId",
                   "value": "",
-                  "description": "Hareruya / importation numeric ID"
+                  "description": "Importation numeric ID"
                 }
               ],
               "query": [

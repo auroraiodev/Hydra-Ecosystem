@@ -3,7 +3,7 @@ import type { HybridSearchResult } from '@/features/singles-search/types';
 import type { CardData } from '@/features/products/types/EnhancedCard.types';
 import { resolveImageUrl } from './imageUrl';
 
-/** Maps raw Hareruya language codes and language abbreviations to Spanish display names. */
+/** Maps raw importation language codes and language abbreviations to Spanish display names. */
 const RAW_LANGUAGE_DISPLAY: Record<string, string> = {
   '1': 'Japonés',
   '2': 'Inglés',
@@ -33,7 +33,7 @@ const RAW_LANGUAGE_DISPLAY: Record<string, string> = {
 };
 
 /**
- * Resolves a language value (raw Hareruya code, abbreviation, or display name) to its
+ * Resolves a language value (raw importation code, abbreviation, or display name) to its
  * Spanish display name. Returns the input unchanged if it's already a known display name.
  */
 export function resolveLanguageName(lang: string | number | null | undefined): string | undefined {
@@ -43,7 +43,7 @@ export function resolveLanguageName(lang: string | number | null | undefined): s
 }
 
 /**
- * Resolves a language display name or abbreviation to its raw Hareruya numeric code.
+ * Resolves a language display name or abbreviation to its raw importation numeric code.
  * Defaults to '2' (English) if unknown.
  */
 export function resolveLanguageCode(lang: string | null | undefined): string {

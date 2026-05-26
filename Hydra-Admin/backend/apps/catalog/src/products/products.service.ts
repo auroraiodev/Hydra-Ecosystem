@@ -1534,7 +1534,7 @@ export class ProductsService {
 
   async updateTags(productId: string, tagNames: string[], user: UserWithRole) {
     // Guard: only forward valid UUIDs to Prisma — stale localStorage entries
-    // can contain Hareruya composite IDs (e.g. "98097-Inglés-7") that cause
+    // can contain importation composite IDs (e.g. "98097-Inglés-7") that cause
     // a P2007 invalid input syntax error on the UUID column.
     const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!UUID_REGEX.test(productId)) {
@@ -1612,7 +1612,7 @@ export class ProductsService {
 
   async update(id: string, updateDto: UpdateSingleDto, user: UserWithRole) {
     // Guard: only forward valid UUIDs to Prisma — stale localStorage entries
-    // can contain Hareruya composite IDs (e.g. "98097-Inglés-7") that cause
+    // can contain importation composite IDs (e.g. "98097-Inglés-7") that cause
     // a P2007 invalid input syntax error on the UUID column.
     const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!UUID_REGEX.test(id)) {
@@ -1653,7 +1653,7 @@ export class ProductsService {
   async findByIds(ids: string[]) {
     if (!ids?.length) return [];
     // Guard: only forward valid UUIDs to Prisma — stale localStorage entries
-    // can contain Hareruya composite IDs (e.g. "98097-Inglés-7") that cause
+    // can contain importation composite IDs (e.g. "98097-Inglés-7") that cause
     // a P2007 invalid input syntax error on the UUID column.
     const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const validIds = ids.filter((id) => UUID_REGEX.test(id));
@@ -1663,7 +1663,7 @@ export class ProductsService {
       include: { conditions: true, languages: true, tcgs: true, categories: true },
     });
 
-    // Fresh pricing for items linked to Hareruya to ensure wishlist accuracy
+    // Fresh pricing for items linked to importation to ensure wishlist accuracy
     const freshDataMap = new Map<
       string,
       {
