@@ -77,6 +77,7 @@ COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/node_modules ./backend/node_modules
 COPY --from=builder /app/backend/package.json ./backend/package.json
 COPY --from=builder /app/backend/prisma ./backend/prisma
+COPY ws-proxy.js ./ws-proxy.js
 
 RUN mkdir -p ./backend/public/uploads
 
@@ -86,4 +87,5 @@ EXPOSE 3002
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3002/api/v1/health || exit 1
 
-CMD node backend/dist/main.js & node apps/hydra-fe/server.js
+# NestJS on 3002, Next.js on 3009 (internal), ws-proxy on 3000 (public)
+CMD bun backend/dist/main.js & PORT=3009 bun apps/hydra-fe/server.js & PORT=3000 NEXT_PORT=3009 bun ws-proxy.js
