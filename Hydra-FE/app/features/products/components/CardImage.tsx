@@ -28,6 +28,8 @@ export function CardImage({
     );
   }
 
+  const src = resolveImageUrl(imageUrl);
+
   return (
     <div className={`relative h-full ${aspectRatio} rounded-lg overflow-hidden group`}>
       <div className="relative size-full cursor-pointer flex items-center justify-center">
@@ -38,9 +40,10 @@ export function CardImage({
         )}
 
         <Image
-          src={resolveImageUrl(imageUrl)}
+          src={src}
           alt={title}
           fill
+          unoptimized={src.startsWith('/api/images/external')}
           className={`cursor-pointer transition-opacity duration-500 ${
             isLoading ? 'opacity-0' : 'opacity-100'
           } object-contain mix-blend-multiply ${imageClassName}`}
