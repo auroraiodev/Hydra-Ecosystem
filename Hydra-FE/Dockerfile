@@ -1,7 +1,10 @@
 # ============================================================
 # Dockerfile — Hydra FE (Next.js + NestJS)
-# Sequential builds + workspace root to avoid OOM and Turbopack
-# redirect errors when resolving the arcane-vault-ui local package.
+# The project workspace is structured to mirror the original pnpm monorepo
+# layout (apps/hydra-fe, apps/theme) so that next.config.ts's
+# outputFileTracingRoot: path.join(__dirname, '../../')
+# correctly resolves to /app/ (the workspace root), producing a clean
+# standalone output at apps/hydra-fe/server.js.
 # ============================================================
 
 # ── Stage 1: Build ───────────────────────────────────────────
@@ -22,18 +25,18 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_AUTH_SERVICE_URL=$NEXT_PUBLIC_AUTH_SERVICE_URL
 
 # ── 1. Install workspace deps ─────────────────────────────────
-# A synthetic workspace root forces bun to create a proper symlink for
-# arcane-vault-ui → theme instead of a bun-internal redirect file.
-# Turbopack cannot parse bun's redirect format; symlinks work fine.
-COPY theme/package.json ./theme/package.json
-COPY app/package.json ./app/package.json
-RUN printf '{"private":true,"workspaces":["app","theme"]}' > package.json && bun install
+# Place app at apps/hydra-fe and theme at apps/theme so that
+# "arcane-vault-ui": "../theme" resolves correctly within the workspace,
+# AND outputFileTracingRoot=../../ (from apps/hydra-fe) reaches /app/.
+COPY theme/package.json ./apps/theme/package.json
+COPY app/package.json ./apps/hydra-fe/package.json
+RUN printf '{"private":true,"workspaces":["apps/hydra-fe","apps/theme"]}' > package.json && bun install
 
 # ── 2. Frontend source + build ────────────────────────────────
-COPY app/ ./app/
-COPY theme/ ./theme/
+COPY app/ ./apps/hydra-fe/
+COPY theme/ ./apps/theme/
 
-WORKDIR /app/app
+WORKDIR /app/apps/hydra-fe
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     NODE_OPTIONS="--max-old-space-size=1536" \
@@ -57,13 +60,18 @@ RUN bun run build:api:only || bun run build || true
 FROM oven/bun:1.3 AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0"
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/app/.next/standalone ./app/
-COPY --from=builder /app/app/.next/static ./app/.next/static
-COPY --from=builder /app/app/public ./app/public
+# Standalone copies the entire output preserving the directory structure
+# relative to outputFileTracingRoot (/app/), so server.js ends up at
+# apps/hydra-fe/server.js after COPY.
+COPY --from=builder /app/apps/hydra-fe/.next/standalone ./
+COPY --from=builder /app/apps/hydra-fe/.next/static ./apps/hydra-fe/.next/static
+COPY --from=builder /app/apps/hydra-fe/public ./apps/hydra-fe/public
 
 COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/node_modules ./backend/node_modules
@@ -78,4 +86,4 @@ EXPOSE 3002
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3002/api/v1/health || exit 1
 
-CMD bun run --cwd backend dist/main.js & bun run app/server.js
+CMD node backend/dist/main.js & node apps/hydra-fe/server.js
