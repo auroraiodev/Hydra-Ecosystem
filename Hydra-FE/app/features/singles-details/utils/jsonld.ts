@@ -20,11 +20,16 @@ function buildVariantOffer(
     shippingDetails: {
       '@type': 'OfferShippingDetails',
       shippingRate: { '@type': 'MonetaryAmount', value: 150, currency: 'MXN' },
-      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'MX' },
+      shippingDestination: { '@type': 'DefinedRegion', addressCountry: { '@type': 'Country', name: 'MX' } },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: 3, maxValue: 7, unitCode: 'DAY' },
+      },
     },
     hasMerchantReturnPolicy: {
       '@type': 'MerchantReturnPolicy',
-      applicableCountry: 'MX',
+      applicableCountry: { '@type': 'Country', name: 'MX' },
       returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnPeriod',
       merchantReturnDays: 30,
       returnMethod: 'https://schema.org/ReturnByMail',
