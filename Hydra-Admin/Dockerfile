@@ -7,15 +7,17 @@
 FROM oven/bun:1.3 AS deps
 WORKDIR /app
 
-# Copy lockfiles for all three package roots so frozen installs work
+# Copy lockfiles for all package roots so frozen installs work
 COPY package.json bun.lock* ./
+COPY theme/package.json theme/bun.lock* theme/
 COPY app/package.json app/bun.lock* app/
 COPY backend/package.json backend/bun.lock* backend/
 COPY backend/prisma/ backend/prisma/
 
 # Install root (concurrently), then each sub-package independently
 RUN bun install --frozen-lockfile && \
-    cd app && bun install --frozen-lockfile && \
+    cd theme && bun install --frozen-lockfile && \
+    cd ../app && bun install --frozen-lockfile && \
     cd ../backend && bun install --frozen-lockfile
 
 # ── Stage 2: Build (sequential) ──────────────────────────────
@@ -38,6 +40,7 @@ ENV NEXT_PUBLIC_ADMIN_URL=$NEXT_PUBLIC_ADMIN_URL \
     NEXT_PUBLIC_AUTH_SERVICE_URL=$NEXT_PUBLIC_AUTH_SERVICE_URL
 
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/theme/node_modules ./theme/node_modules
 COPY --from=deps /app/backend/node_modules ./backend/node_modules
 COPY --from=deps /app/app/node_modules ./app/node_modules
 COPY . .
