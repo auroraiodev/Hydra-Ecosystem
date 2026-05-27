@@ -71,6 +71,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/node_modules ./backend/node_modules
 COPY --from=builder /app/backend/prisma ./backend/prisma
+COPY --from=builder /app/backend/prisma.config.ts ./backend/prisma.config.ts
 COPY --from=builder /app/backend/package.json ./backend/package.json
 
 COPY --from=builder /app/app/.next/standalone ./app/

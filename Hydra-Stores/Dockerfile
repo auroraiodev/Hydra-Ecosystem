@@ -70,6 +70,7 @@ COPY --from=builder /build/backend/node_modules ./backend/node_modules
 COPY --from=builder /build/backend/package.json ./backend/package.json
 COPY --from=builder /build/backend/prisma ./backend/prisma
 COPY --from=builder /build/backend/scripts ./backend/scripts
+COPY --from=builder /build/backend/prisma.config.ts ./backend/prisma.config.ts
 COPY --from=builder /build/backend/docker-entrypoint.sh ./backend/docker-entrypoint.sh
 RUN sed -i 's/\r$//' backend/docker-entrypoint.sh && chmod +x backend/docker-entrypoint.sh
 
