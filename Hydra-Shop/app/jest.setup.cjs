@@ -2,6 +2,7 @@
 // This file runs before each test to set up the testing environment
 
 // Import dotenv to load environment variables for tests
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require('dotenv').config();
 
 // Mock next/navigation for client-side tests

@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { NextRequest, NextResponse } from 'next/server';
 
-const AUTH_SERVICE_URL = (process.env.AUTH_SERVICE_URL || 'http://localhost:3004').replace('localhost', '127.0.0.1');
+const AUTH_SERVICE_URL = (process.env.AUTH_SERVICE_URL || 'http://localhost:3002').replace('localhost', '127.0.0.1');
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');

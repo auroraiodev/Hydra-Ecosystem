@@ -6,6 +6,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppDispatch } from '@/lib/store';
 import { setCredentials } from '@/lib/store/slices/authSlice';
 
+const LOADING_MESSAGE = 'Completando inicio de sesión…';
+
 function AuthCallbackContent() {
   const { replace } = useRouter();
   const searchParams = useSearchParams();
@@ -26,15 +28,28 @@ function AuthCallbackContent() {
       })()
     : null;
 
-  const { data: token } = useQuery({
+  const rawToken = rawParam
+    ? (() => {
+        try {
+          const decoded = JSON.parse(atob(rawParam));
+          return decoded.accessToken || decoded.token || null;
+        } catch {
+          return null;
+        }
+      })()
+    : null;
+
+  const { data: sessionToken } = useQuery({
     queryKey: ['auth-callback-session'],
     queryFn: async () => {
       const res = await fetch('/api/auth/session');
       const data = await res.json();
       return data.token as string | undefined;
     },
-    enabled: !!user,
+    enabled: !!user && !rawToken,
   });
+
+  const token = sessionToken || rawToken;
 
   const redirectUrl = rawParam
     ? (() => {
@@ -58,7 +73,7 @@ function AuthCallbackContent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <p className="text-muted-foreground">Completando inicio de sesión…</p>
+      <p className="text-muted-foreground">{LOADING_MESSAGE}</p>
     </div>
   );
 }
@@ -68,7 +83,7 @@ export function AuthCallbackPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
-          <p className="text-muted-foreground">Completando inicio de sesión…</p>
+          <p className="text-muted-foreground">{LOADING_MESSAGE}</p>
         </div>
       }
     >

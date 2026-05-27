@@ -1,7 +1,7 @@
 import { useCallback, useTransition } from 'react';
 import { useToastContext } from '@/features/shared/components/ToastProvider';
 
-const AUTH_SERVICE_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:3004';
+const AUTH_SERVICE_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:3002';
 
 export function useGoogleAuth() {
   const [isPending, startTransition] = useTransition();

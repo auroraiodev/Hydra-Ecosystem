@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const BACKEND_URL = (
@@ -63,6 +62,15 @@ function isAuthTokenValid(token: string): boolean {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Intercept and proxy Google OAuth routes directly to the NestJS backend.
+  // This prevents Next.js's dynamic /[tcg]/[category] routes from hijacking
+  // the unversioned /auth/google paths.
+  if (pathname === '/auth/google' || pathname === '/auth/google/callback') {
+    const backendClean = BACKEND_URL.replace(/\/$/, '');
+    const targetUrl = new URL(`${backendClean}${pathname}${request.nextUrl.search}`);
+    return NextResponse.rewrite(targetUrl);
+  }
 
   // 1. IP Block / Presence Check (from middleware.ts)
   const shouldSkipIpCheck = SKIP_PREFIXES.some((p) => pathname.startsWith(p));

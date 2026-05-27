@@ -19,7 +19,7 @@ function getWsUrl(): string {
 export function usePresence() {
   const socketRef = useRef<ReturnType<typeof import('socket.io-client')['io']> | null>(null);
   const pathname = usePathname();
-  const isAuthenticated = useAppSelector((s: any) => s.auth?.isAuthenticated);
+  const isAuthenticated = useAppSelector((s) => s.auth?.isAuthenticated);
 
   useEffect(() => {
     if (!isAuthenticated) return;
