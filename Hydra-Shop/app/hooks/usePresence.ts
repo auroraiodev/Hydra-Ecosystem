@@ -24,7 +24,7 @@ export function usePresence() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const token = tokenStore.getToken();
+    const token = tokenStore.get();
     if (!token) return;
 
     let socket: ReturnType<typeof import('socket.io-client')['io']>;

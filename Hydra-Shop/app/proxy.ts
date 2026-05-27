@@ -7,6 +7,19 @@ const BACKEND_URL = (
   'http://127.0.0.1:3002'
 ).replace('localhost', '127.0.0.1');
 
+const SKIP_PREFIXES = [
+  '/_next',
+  '/maintenance',
+  '/api',
+  '/uploads',
+  '/favicon',
+  '/icons',
+  '/cat.png',
+  '/sw.js',
+  '/workbox-',
+  '/offline',
+];
+
 // Define legacy route mappings for 301 redirects
 const REDIRECTS: Record<string, string> = {
   '/products': '/singles',
@@ -51,7 +64,33 @@ function isAuthTokenValid(token: string): boolean {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Technical SEO: Check for legacy route redirects (301)
+  // 1. IP Block / Presence Check (from middleware.ts)
+  const shouldSkipIpCheck = SKIP_PREFIXES.some((p) => pathname.startsWith(p));
+  if (!shouldSkipIpCheck) {
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ip = forwarded?.split(',')[0]?.trim() || '';
+    if (ip) {
+      try {
+        const res = await fetch(
+          `${BACKEND_URL}/api/v1/presence/check-ip?ip=${encodeURIComponent(ip)}`,
+          {
+            next: { revalidate: 60 },
+            signal: AbortSignal.timeout(2000),
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.blocked) {
+            return NextResponse.redirect(new URL('/maintenance', request.url));
+          }
+        }
+      } catch {
+        // Fail open
+      }
+    }
+  }
+
+  // 2. Technical SEO: Check for legacy route redirects (301)
   for (const [oldPath, newPath] of Object.entries(REDIRECTS)) {
     if (pathname.startsWith(oldPath)) {
       const remainingPath = pathname.slice(oldPath.length);

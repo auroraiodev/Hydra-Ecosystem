@@ -40,7 +40,9 @@ COPY . .
 
 # Bun copies path-based deps (arcane-vault-ui: ../theme) at install time, but only
 # theme/package.json existed then. Sync the full source so Next.js can resolve it.
-RUN cp -r theme/. app/node_modules/arcane-vault-ui/
+# Exclude node_modules: bun hardlinks theme/node_modules ↔ arcane-vault-ui/node_modules,
+# so cp would fail with "are the same file" on every entry.
+RUN find theme -maxdepth 1 -mindepth 1 ! -name 'node_modules' -exec cp -r {} app/node_modules/arcane-vault-ui/ \;
 
 # 1. Backend (NestJS)
 WORKDIR /app/backend
