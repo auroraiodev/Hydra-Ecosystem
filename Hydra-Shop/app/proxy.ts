@@ -67,8 +67,13 @@ export async function proxy(request: NextRequest) {
   // This prevents Next.js's dynamic /[tcg]/[category] routes from hijacking
   // the unversioned /auth/google paths.
   if (pathname === '/auth/google' || pathname === '/auth/google/callback') {
-    const backendClean = BACKEND_URL.replace(/\/$/, '');
-    const targetUrl = new URL(`${backendClean}${pathname}${request.nextUrl.search}`);
+    let backendClean = BACKEND_URL.replace(/\/$/, '');
+    if (backendClean.endsWith('/api')) {
+      backendClean = backendClean.slice(0, -4);
+    } else if (backendClean.endsWith('/api/v1')) {
+      backendClean = backendClean.slice(0, -7);
+    }
+    const targetUrl = new URL(`${backendClean}/api/v1${pathname}${request.nextUrl.search}`);
     return NextResponse.rewrite(targetUrl);
   }
 
@@ -123,7 +128,7 @@ export async function proxy(request: NextRequest) {
 
   const scriptSrc = isDev
     ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' https:`
-    : `script-src 'self' 'unsafe-inline' 'unsafe-eval' https:`;
+    : `script-src 'self' 'unsafe-inline' https:`;
 
   // Use NEXT_PUBLIC_API_URL for the CSP origin — it's the public-facing URL.
   // BACKEND_URL may be an internal Docker hostname (e.g. http://hydra-backend:3002)
