@@ -42,7 +42,9 @@ COPY . .
 # theme/package.json existed then. Sync the full source so Next.js can resolve it.
 # Exclude node_modules: bun hardlinks theme/node_modules ↔ arcane-vault-ui/node_modules,
 # so cp would fail with "are the same file" on every entry.
-RUN find theme -maxdepth 1 -mindepth 1 ! -name 'node_modules' -exec cp -r {} app/node_modules/arcane-vault-ui/ \;
+RUN rm -rf app/node_modules/arcane-vault-ui && \
+    mkdir -p app/node_modules/arcane-vault-ui && \
+    find theme -maxdepth 1 -mindepth 1 ! -name 'node_modules' -exec cp -r {} app/node_modules/arcane-vault-ui/ \;
 
 # 1. Backend (NestJS)
 WORKDIR /app/backend
