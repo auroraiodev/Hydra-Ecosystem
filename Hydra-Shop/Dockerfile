@@ -30,7 +30,8 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
 # AND outputFileTracingRoot=../../ (from apps/hydra-fe) reaches /app/.
 COPY theme/package.json ./apps/theme/package.json
 COPY app/package.json ./apps/hydra-fe/package.json
-RUN printf '{"private":true,"workspaces":["apps/hydra-fe","apps/theme"]}' > package.json && bun install
+RUN sed -i 's/"arcane-vault-ui"[[:space:]]*:[[:space:]]*"\.\.\/theme"/"arcane-vault-ui": "workspace:*"/g' ./apps/hydra-fe/package.json && \
+    printf '{"private":true,"workspaces":["apps/hydra-fe","apps/theme"]}' > package.json && bun install
 
 # ── 2. Frontend source + build ────────────────────────────────
 COPY app/ ./apps/hydra-fe/
