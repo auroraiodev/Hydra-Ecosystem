@@ -140,14 +140,14 @@ export async function proxy(request: NextRequest) {
 
   const connectSrc = isDev
     ? `connect-src 'self' https://*.sentry.io https://sentry.io https://*.mercadopago.com https://*.mercadopago.com.mx https://*.mercadolibre.com https://api.scryfall.com http://localhost:* ws://localhost:* http://127.0.0.1:* ws://127.0.0.1:*`
-    : `connect-src 'self' https://*.sentry.io https://sentry.io https://*.mercadopago.com https://*.mercadopago.com.mx https://*.mercadolibre.com https://api.scryfall.com ${publicApiOrigin} ${publicApiOrigin.replace(/^http/, 'ws')}`;
+    : `connect-src 'self' https://*.sentry.io https://sentry.io https://*.mercadopago.com https://*.mercadopago.com.mx https://*.mercadolibre.com https://api.scryfall.com ${publicApiOrigin} ${publicApiOrigin.replace(/^http/, 'ws')} https://hydracollect.com wss://hydracollect.com https://*.hydracollect.com wss://*.hydracollect.com`;
 
   const cspHeader = `
     default-src 'self';
     ${scriptSrc};
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com;
-    img-src 'self' data: blob: ${BACKEND_URL} http://localhost:3002 http://127.0.0.1:3002 https://lh3.googleusercontent.com https://*.googleusercontent.com https://html.tailus.io https://svgs.scryfall.io https://img.global.userapi.com https://m.media-amazon.com https://images.unsplash.com;
+    img-src 'self' data: blob: ${BACKEND_URL} http://localhost:3002 http://127.0.0.1:3002 https://lh3.googleusercontent.com https://*.googleusercontent.com https://html.tailus.io https://svgs.scryfall.io https://img.global.userapi.com https://m.media-amazon.com https://images.unsplash.com https://via.placeholder.com https://*.sslip.io https://hydracollect.com https://*.hydracollect.com https://*.vtexassets.com https://www.importationmtg.com https://importationmtg.com https://web-uwf962mnz48agqf78kdk1mpq.87.99.141.73.sslip.io;
     ${connectSrc};
     frame-src 'self' https://*.mercadopago.com https://*.mercadopago.com.mx https://*.mercadolibre.com;
     worker-src 'self' blob:;

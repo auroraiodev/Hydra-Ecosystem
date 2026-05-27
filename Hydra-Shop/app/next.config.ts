@@ -151,6 +151,7 @@ const nextConfig: NextConfig = {
       { protocol: 'http', hostname: '127.0.0.1', port: '3002', pathname: '/**' },
       { protocol: 'https', hostname: 'api.hydracollect.com', pathname: '/**' },
       { protocol: 'https', hostname: 'qa-api.hydracollect.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'hydracollect.com', pathname: '/**' },
       { protocol: 'https', hostname: '*.hydracollect.com', pathname: '/**' },
       { protocol: 'https', hostname: '*.vtexassets.com', pathname: '/**' },
       { protocol: 'https', hostname: 'www.importationmtg.com', pathname: '/**' },
