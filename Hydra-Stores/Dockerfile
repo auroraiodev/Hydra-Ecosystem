@@ -40,6 +40,7 @@ COPY backend/tsconfig.json ./
 COPY backend/tsconfig.build.json ./
 COPY backend/nest-cli.json ./
 COPY backend/webpack.config.cjs ./
+COPY backend/docker-entrypoint.sh ./
 
 ENV NODE_OPTIONS="--max-old-space-size=1024"
 RUN bun run build:api:only
