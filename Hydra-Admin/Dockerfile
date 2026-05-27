@@ -80,9 +80,6 @@ COPY --from=builder /app/app/.next/standalone ./app/
 COPY --from=builder /app/app/.next/static ./app/.next/static
 COPY --from=builder /app/app/public ./app/public
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-
 EXPOSE 3001 3002
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
