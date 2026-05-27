@@ -192,7 +192,7 @@ export class CartService {
 
       // Always trust the fresh price from productData (updated during transformation)
       // This includes local condition discounts if they were applied in getLocalProductDetails
-      let unitPrice = Number(transformed.productData.finalPrice) || 0;
+      let unitPrice = this.extractPriceFromProductData(transformed.productData);
 
       // Resiliency fallback for local products if finalPrice is missing
       if (unitPrice === 0 && !raw.is_importation && raw.singles) {
@@ -558,6 +558,7 @@ export class CartService {
         price_mxn: finalPrice,
         price_mxn_importation,
         price_mxn_local,
+        finalPrice,
 
         isLocalInventory: !!localStockMatch,
         source: localStockMatch ? 'hybrid' : 'importation',
@@ -706,7 +707,10 @@ export class CartService {
       RUSO: 'RUSSIAN',
     };
 
-    return languageMap[upperLang] || 'ENGLISH';
+    if (Object.prototype.hasOwnProperty.call(languageMap, upperLang)) {
+      return languageMap[upperLang];
+    }
+    return 'ENGLISH';
   }
 
   /**

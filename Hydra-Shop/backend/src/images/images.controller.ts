@@ -29,10 +29,7 @@ export class ImagesController {
     summary: 'Get an external image proxy',
     description: 'Proxies external card images through the backend',
   })
-  async getExternalImage(
-    @Query('path') path: string,
-    @Res() res: Response,
-  ) {
+  async getExternalImage(@Query('path') path: string, @Res() res: Response) {
     if (!path) {
       throw new BadRequestException('Path parameter is required');
     }
@@ -43,7 +40,7 @@ export class ImagesController {
     try {
       const decodedDomain = Buffer.from('ZmlsZXMuaGFyZXJ1eWFtdGcuY29t', 'base64').toString('utf8');
       const url = `https://${decodedDomain}/${path}`;
-      
+
       const response = await fetch(url, {
         signal: AbortSignal.timeout(10000),
         headers: {

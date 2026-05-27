@@ -10,8 +10,6 @@ import { AddCartItemDto } from './dto/add-cart-item.dto.js';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto.js';
 import { SearchService } from '../../apps/catalog/src/search/search.service.js';
 import { ImportationService } from '../../apps/catalog/src/importation/importation.service.js';
-import { CurrencyService } from '../../apps/catalog/src/importation/currency.service.js';
-
 @Injectable()
 export class CartService {
   private readonly logger = new Logger(CartService.name);
@@ -21,7 +19,6 @@ export class CartService {
     private readonly prisma: PrismaService,
     private readonly searchService: SearchService,
     private readonly importationService: ImportationService,
-    private readonly currencyService: CurrencyService,
   ) {}
 
   /**
@@ -157,7 +154,7 @@ export class CartService {
           });
           this.logger.log(`Fetched fresh pricing for ${freshPricingMap.size} importation items`);
         } catch (priceError) {
-          this.logger.warn(`Failed to fetch fresh pricing for cart items: ${priceError.message}`);
+          this.logger.warn(`Failed to fetch fresh pricing for cart items: ${(priceError as Error).message}`);
         }
       }
 
@@ -531,8 +528,6 @@ export class CartService {
 
       const basePriceMXN =
         Number(freshPricing?.basePriceMXN) || Number(storedData.basePriceMXN) || finalPrice;
-      const _importFeeMXN =
-        Number(freshPricing?.importFeeMXN) || Number(storedData.importFeeMXN) || 0;
 
       const localStockMatch = await this.prisma.singles.findFirst({
         where: {
@@ -706,7 +701,10 @@ export class CartService {
       RUSO: 'RUSSIAN',
     };
 
-    return languageMap[upperLang] || 'ENGLISH';
+    if (Object.prototype.hasOwnProperty.call(languageMap, upperLang)) {
+      return languageMap[upperLang];
+    }
+    return 'ENGLISH';
   }
 
   /**

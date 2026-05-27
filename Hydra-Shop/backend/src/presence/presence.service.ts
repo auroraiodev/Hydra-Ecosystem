@@ -20,16 +20,19 @@ export class PresenceService {
   async join(userId: string, page?: string, ip?: string) {
     await this.prisma.user_sessions.upsert({
       where: { user_id: userId },
-      create: { user_id: userId, current_page: page ?? null, ip_address: ip ?? null, last_seen: new Date() },
+      create: {
+        user_id: userId,
+        current_page: page ?? null,
+        ip_address: ip ?? null,
+        last_seen: new Date(),
+      },
       update: { last_seen: new Date(), current_page: page ?? null, ip_address: ip ?? null },
     });
     if (page) await this.logVisit(userId, page, ip);
   }
 
   async leave(userId: string) {
-    await this.prisma.user_sessions
-      .delete({ where: { user_id: userId } })
-      .catch(() => {});
+    await this.prisma.user_sessions.delete({ where: { user_id: userId } }).catch(() => {});
   }
 
   async logVisit(userId: string, page: string, ip?: string) {
@@ -113,9 +116,7 @@ export class PresenceService {
   }
 
   async unblockIp(ip: string) {
-    await this.prisma.blocked_ips
-      .delete({ where: { ip_address: ip } })
-      .catch(() => {});
+    await this.prisma.blocked_ips.delete({ where: { ip_address: ip } }).catch(() => {});
   }
 
   async getBlockedIps() {
@@ -131,9 +132,7 @@ export class PresenceService {
   }
 
   async unblockUser(userId: string) {
-    await this.prisma.blocked_users
-      .delete({ where: { user_id: userId } })
-      .catch(() => {});
+    await this.prisma.blocked_users.delete({ where: { user_id: userId } }).catch(() => {});
   }
 
   async getBlockedUsers() {

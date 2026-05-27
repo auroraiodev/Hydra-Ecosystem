@@ -59,14 +59,14 @@ export async function getProduct(
 
   if (Array.isArray(data)) {
     if (language) {
-      const languageMap: Record<string, string> = {
+      const languageMap: Record<string, string> = Object.assign(Object.create(null), {
         inglés: 'english',
         español: 'spanish',
         japonés: 'japanese',
         japanese: 'japanese',
         english: 'english',
         spanish: 'spanish',
-      };
+      });
 
       const normalizedQueryLang = languageMap[language.toLowerCase()] || language.toLowerCase();
 

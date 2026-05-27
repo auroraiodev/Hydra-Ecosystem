@@ -3006,8 +3006,9 @@ export class OrdersService {
       throw new NotFoundException(`Order ${orderId} not found during finalization`);
     }
 
-    const usedMercadoPago = (order.payments ?? []).some((p: any) =>
-      p.payment_method === 'mercadopago' || p.payment_method === 'wallet_plus_mercadopago',
+    const usedMercadoPago = (order.payments ?? []).some(
+      (p: any) =>
+        p.payment_method === 'mercadopago' || p.payment_method === 'wallet_plus_mercadopago',
     );
 
     for (const item of order.items) {

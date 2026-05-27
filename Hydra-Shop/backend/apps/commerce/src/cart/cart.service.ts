@@ -171,7 +171,7 @@ export class CartService {
       const transformed = transformedItems[i];
       if (!transformed?.productData) continue;
 
-      let unitPrice = Number(transformed.productData.finalPrice) || 0;
+      let unitPrice = this.extractPriceFromProductData(transformed.productData);
 
       if (unitPrice === 0 && !raw.is_importation && raw.singles) {
         const single = raw.singles;
@@ -504,6 +504,7 @@ export class CartService {
         price_mxn: finalPrice,
         price_mxn_importation,
         price_mxn_local,
+        finalPrice,
 
         isLocalInventory: !!localStockMatch,
         source: localStockMatch ? 'hybrid' : 'importation',
