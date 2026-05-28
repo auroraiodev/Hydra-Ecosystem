@@ -77,7 +77,8 @@ export function LoginPageContentInner() {
                     alt="Hydra Admin"
                     width={80}
                     height={80}
-                    className="w-20 h-auto object-contain"
+                    className="w-20 object-contain"
+                    style={{ height: 'auto' }}
                     priority
                   />
                 </div>
@@ -123,7 +124,7 @@ export function LoginPageContentInner() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
+                <div className="space-y-2" suppressHydrationWarning>
                   <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
                     Email
                   </Label>
@@ -140,7 +141,7 @@ export function LoginPageContentInner() {
                   />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-2" suppressHydrationWarning>
                   <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">
                     Password
                   </Label>
