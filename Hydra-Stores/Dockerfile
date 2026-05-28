@@ -40,7 +40,7 @@ COPY backend/ ./backend/
 
 WORKDIR /app/backend
 ENV NODE_OPTIONS="--max-old-space-size=1024"
-RUN bun install && bun run build
+RUN bun install && bunx prisma generate && bun scripts/fix-prisma-client-resolution.cjs && bun run build:api:only
 
 # ── Stage 2: Runner ───────────────────────────────────────────
 FROM oven/bun:1.3-slim AS runner

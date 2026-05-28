@@ -79,4 +79,4 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD curl -sf http://localhost:3001/api/health || exit 1
 
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "PORT=3001 node server.js"]
