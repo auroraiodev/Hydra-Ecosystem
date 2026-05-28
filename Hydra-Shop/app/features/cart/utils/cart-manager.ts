@@ -62,12 +62,12 @@ export function resolveCartItemPrice(
   unitPrice?: number | string | null
 ): string {
   return (
+    normalizePrice(productData?.finalPrice) ||
+    normalizePrice(productData?.price_mxn) ||
     normalizePrice(productData?.price) ||
     normalizePrice(unitPrice) ||
-    normalizePrice(productData?.finalPrice) ||
     normalizePrice(productData?.price_mxn_local) ||
     normalizePrice(productData?.price_mxn_importation) ||
-    normalizePrice(productData?.price_mxn) ||
     (productData?.price ? String(productData.price) : '')
   );
 }
