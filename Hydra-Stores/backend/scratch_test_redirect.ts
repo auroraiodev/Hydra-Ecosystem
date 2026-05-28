@@ -5,7 +5,7 @@ import * as http from 'http';
 async function test() {
   process.env.GOOGLE_CLIENT_ID = 'test-client-id';
   process.env.GOOGLE_CLIENT_SECRET = 'test-client-secret';
-  process.env.GOOGLE_CALLBACK_URL = 'http://localhost:3004/auth/google/callback';
+  process.env.GOOGLE_CALLBACK_URL = 'http://127.0.0.1:3002/api/v1/auth/google/callback';
   process.env.DATABASE_URL = 'postgres://postgres:postgres@localhost:5432/postgres'; // dummy
   
   const app = await NestFactory.create(AppModule);

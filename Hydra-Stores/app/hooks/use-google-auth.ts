@@ -3,7 +3,7 @@
 import { useCallback, useTransition } from 'react';
 import { detectOriginApp } from '@/lib/auth-redirect';
 
-const AUTH_SERVICE_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:3004';
+const AUTH_SERVICE_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://127.0.0.1:3002/api/v1';
 
 export function useGoogleAuth() {
   const [isPending, startTransition] = useTransition();

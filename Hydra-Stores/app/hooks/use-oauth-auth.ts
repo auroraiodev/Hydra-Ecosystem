@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-const AUTH_SERVICE_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:3004';
+const AUTH_SERVICE_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 'http://127.0.0.1:3002/api/v1';
 
 interface UseOAuthAuthOptions {
   actionType?: 'login' | 'signup';
