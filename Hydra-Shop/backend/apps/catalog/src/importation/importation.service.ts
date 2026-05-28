@@ -80,7 +80,7 @@ export interface ImportationSearchResult {
 
 // Importation language code mapping
 // 1 = Japanese, 2 = English, 12 = English (alternate)
-const IMPORTATION_LANGUAGE_MAP: Record<string, string> = {
+const IMPORTATION_LANGUAGE_MAP: Record<string, string> = Object.assign(Object.create(null), {
   '1': 'JAPANESE',
   '2': 'ENGLISH',
   '3': 'FRENCH',
@@ -93,7 +93,7 @@ const IMPORTATION_LANGUAGE_MAP: Record<string, string> = {
   '10': 'RUSSIAN',
   '11': 'SPANISH',
   '12': 'ENGLISH',
-};
+});
 
 @Injectable()
 export class ImportationService {
@@ -826,7 +826,7 @@ export class ImportationService {
 
     // Map Importation language to Spanish display name
     const importationLanguage = IMPORTATION_LANGUAGE_MAP[doc.language] || 'ENGLISH';
-    const languageMap: Record<string, string> = {
+    const languageMap: Record<string, string> = Object.assign(Object.create(null), {
       JAPANESE: 'Japonés',
       ENGLISH: 'Inglés',
       SPANISH: 'Español',
@@ -837,7 +837,7 @@ export class ImportationService {
       RUSSIAN: 'Ruso',
       KOREAN: 'Coreano',
       CHINESE: 'Chino',
-    };
+    });
     const languageDisplayName = languageMap[importationLanguage] || importationLanguage;
 
     const conditionName = 'Near Mint'; // Importation products are always NM
@@ -981,7 +981,7 @@ export class ImportationService {
 
       // Transform documents to search result format using enriched data from mtgsrc
       const data: ImportationSearchResult[] = apiData.results.map((item: any) => {
-        const languageMap: Record<string, string> = {
+        const languageMap: Record<string, string> = Object.assign(Object.create(null), {
           JAPANESE: 'Japonés',
           ENGLISH: 'Inglés',
           SPANISH: 'Español',
@@ -992,7 +992,7 @@ export class ImportationService {
           RUSSIAN: 'Ruso',
           KOREAN: 'Coreano',
           CHINESE: 'Chino',
-        };
+        });
 
         const resolvedLang = IMPORTATION_LANGUAGE_MAP[item.language] || item.language;
         const languageDisplayName = languageMap[resolvedLang] || resolvedLang;

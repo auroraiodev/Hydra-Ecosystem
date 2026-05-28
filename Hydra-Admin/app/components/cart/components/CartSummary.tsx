@@ -11,12 +11,16 @@ export function CartSummary({ cartItems }: CartSummaryProps) {
   const getItemPrice = (item: CartItem) => {
     const pd = item.productData;
     if (!pd) return 0;
-    if (typeof pd.price === 'number') return pd.price;
+    if (pd.finalPrice && pd.finalPrice > 0) return pd.finalPrice;
+    if (pd.price_mxn && pd.price_mxn > 0) return pd.price_mxn;
+    if (typeof pd.price === 'number' && pd.price > 0) return pd.price;
     if (typeof pd.price === 'string') {
-      const match = pd.price.replace(/[^0-9.-]+/g, '');
-      return parseFloat(match) || 0;
+      const parsed = parseFloat(pd.price.replace(/[^0-9.-]+/g, ''));
+      if (parsed > 0) return parsed;
     }
-    return pd.finalPrice || 0;
+    if (pd.price_mxn_local && pd.price_mxn_local > 0) return pd.price_mxn_local;
+    if (pd.price_mxn_importation && pd.price_mxn_importation > 0) return pd.price_mxn_importation;
+    return 0;
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);

@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Cart24Regular } from '@fluentui/react-icons';
+import { Cart24Regular, ArrowSync24Regular } from '@fluentui/react-icons';
 import { adminCartAPI, singlesAPI } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -57,6 +57,7 @@ export function CartManagementDialog({
   const [searchState, dispatchSearch] = useReducer(searchReducer, { query: '', results: [], isSearching: false });
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const [addingToCart, setAddingToCart] = useState<Set<string>>(new Set());
+  const [isRecalculating, setIsRecalculating] = useState(false);
 
   const fetchCart = useCallback(async () => {
     if (!userId) return;
@@ -146,6 +147,21 @@ export function CartManagementDialog({
     finally { setUpdatingItems((prev) => { const next = new Set(prev); next.delete(itemId); return next; }); }
   };
 
+  const handleRecalculate = async () => {
+    if (!userId || isRecalculating) return;
+    setIsRecalculating(true);
+    try {
+      const response = await adminCartAPI.getCart(userId);
+      const items = response?.data || response || [];
+      setCartItems(Array.isArray(items) ? items : []);
+      toast.success('Prices recalculated');
+    } catch {
+      toast.error('Failed to recalculate prices');
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
+
   const handleClearCart = async () => {
     if (!confirm("Clear all items from this user's cart?")) return;
     try { await adminCartAPI.clearCart(userId); setCartItems([]); toast.success('Cart cleared'); }
@@ -184,16 +200,29 @@ export function CartManagementDialog({
             <h4 className="text-[10px] font-semibold uppercase tracking-[0.25em] text-muted-foreground/60">
               Cart Items ({totalItems})
             </h4>
-            {cartItems.length > 0 && (
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 text-[10px] font-bold uppercase tracking-widest text-destructive hover:text-destructive hover:bg-destructive/5"
-                onClick={handleClearCart}
+                className="h-7 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground gap-1"
+                onClick={handleRecalculate}
+                disabled={isRecalculating || isPending}
+                title="Recalculate prices from the source"
               >
-                Clear All
+                <ArrowSync24Regular className={`size-3 ${isRecalculating ? 'animate-spin' : ''}`} />
+                {isRecalculating ? 'Recalculating…' : 'Recalculate'}
               </Button>
-            )}
+              {cartItems.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-[10px] font-bold uppercase tracking-widest text-destructive hover:text-destructive hover:bg-destructive/5"
+                  onClick={handleClearCart}
+                >
+                  Clear All
+                </Button>
+              )}
+            </div>
           </div>
 
           {isPending ? (

@@ -162,10 +162,28 @@ export class CartService {
           : null;
 
       if (storedPrice !== unitPrice) {
-        // Also persist fresh prices into product_data JSON so the fallback stays current
-        // when mtgsrc is temporarily unavailable on the next request.
-        const freshProductData = {
-          ...(raw.product_data as object || {}),
+        // Build freshProductData by explicitly naming each field we want to preserve.
+        // Never spread raw.product_data — even after sanitization, spreading a
+        // user-originated object involves dynamic property access that static
+        // analyzers correctly flag as prototype-pollution risk.
+        const pd = (raw.product_data ?? {}) as Record<string, unknown>;
+        const freshProductData: Record<string, unknown> = {
+          name: pd.name,
+          cardName: pd.cardName,
+          importationId: pd.importationId,
+          language: pd.language,
+          foil: pd.foil,
+          isFoil: pd.isFoil,
+          imageUrl: pd.imageUrl,
+          img: pd.img,
+          cardNumber: pd.cardNumber,
+          expansion: pd.expansion,
+          variant: pd.variant,
+          condition: pd.condition,
+          category: pd.category,
+          tcg: pd.tcg,
+          isLocal: pd.isLocal,
+          idLocal: pd.idLocal,
           finalPrice: unitPrice,
           price_mxn_importation: transformed.productData.price_mxn_importation || unitPrice,
           price_mxn_local: transformed.productData.price_mxn_local || unitPrice,
@@ -174,7 +192,7 @@ export class CartService {
         updates.push(
           this.prisma.cart_items.update({
             where: { id: raw.id },
-            data: { unit_price: unitPrice, product_data: freshProductData },
+            data: { unit_price: unitPrice, product_data: freshProductData as object },
           }),
         );
         // Update in-memory productData so the current response reflects the correct price
@@ -396,13 +414,11 @@ export class CartService {
    * Transform cart items to include full product data with details from search
    * This method searches for product details like in search and returns standard format
    */
-  private async transformCartItemsWithDetails(items: any[], freshPricingMap?: Map<string, any>) {
+  private async transformCartItemsWithDetails(items: any[]) {
     const transformedItems = await Promise.all(
       items.map(async (item, index) => {
         try {
-          const importationId = item.importation_id || item.singles?.importationId;
-          const freshPricing = importationId ? freshPricingMap?.get(importationId) : null;
-          return await this.transformCartItemWithDetails(item, freshPricing);
+          return await this.transformCartItemWithDetails(item);
         } catch (error) {
           this.logger.error(`Error transforming cart item ${index} (id: ${item.id}):`, error);
           return {
@@ -424,7 +440,7 @@ export class CartService {
    * Transform single cart item with full product details
    * Searches for product details and returns in standard format (like search)
    */
-  private async transformCartItemWithDetails(item: any, freshPricing?: any) {
+  private async transformCartItemWithDetails(item: any) {
     let productData: any;
 
     try {
@@ -439,7 +455,6 @@ export class CartService {
         productData = await this.getImportationProductDetails(
           item.importation_id,
           (item.product_data as Record<string, unknown>) || {},
-          freshPricing,
         );
       } else {
         // For local products, transform using search service format
@@ -472,64 +487,69 @@ export class CartService {
   }
 
   /**
-   * Get Importation product details from stored data
-   * Uses stored data to avoid excessive API calls to Importation
+   * Get Importation product details by fetching a fresh price from mtgsrc via findVariant,
+   * mirroring how the search service prices cards. Falls back to storedData on failure.
    */
   private async getImportationProductDetails(
     importationId: string,
     storedData: Record<string, unknown>,
-    freshPricing?: any,
   ): Promise<any> {
+    const cardName =
+      (storedData.cardName as string) ||
+      (storedData.name as string) ||
+      (storedData.title as string) ||
+      '';
+    const isFoil =
+      storedData.foil === true || storedData.foil === 'true' || storedData.foil === 1;
+    const language = (storedData.language as string) || 'Inglés';
+
+    let freshPricing: any = null;
+    if (cardName) {
+      try {
+        freshPricing = await this.importationService.findVariant({
+          importationId,
+          cardName,
+          isFoil,
+          language,
+        });
+      } catch (err) {
+        this.logger.warn(`[Cart] findVariant failed for ${importationId}: ${(err as Error).message}`);
+      }
+    }
+
     try {
-      const cardName =
-        (storedData.cardName as string) ||
-        (storedData.name as string) ||
-        (storedData.title as string) ||
-        '';
-
-      const priceString = freshPricing?.priceString || (storedData.price as string) || '';
+      const price_mxn_importation = freshPricing
+        ? Number(freshPricing.price_mxn_importation) || 0
+        : Number(storedData.price_mxn_importation) || 0;
+      const price_mxn_local = freshPricing
+        ? Number(freshPricing.price_mxn_local) || 0
+        : Number(storedData.price_mxn_local) || 0;
       const finalPrice =
-        Number(freshPricing?.finalPrice) || this.extractPriceFromProductData(storedData);
-
-      const basePriceMXN =
-        Number(freshPricing?.basePriceMXN) || Number(storedData.basePriceMXN) || finalPrice;
+        price_mxn_importation || price_mxn_local || this.extractPriceFromProductData(storedData);
+      const priceString =
+        finalPrice > 0 ? `$${finalPrice.toFixed(2)} MXN` : (storedData.price as string) || '';
 
       const localStockMatch = await this.prisma.singles.findFirst({
-        where: {
-          importationId: importationId,
-          stock: { gt: 0 },
-          isLocalInventory: true,
-        },
+        where: { importationId, stock: { gt: 0 }, isLocalInventory: true },
       });
-
-      // When freshPricing is available, never fall back to stale storedData values —
-      // storedData fields like price_mxn_importation can be outdated from when the item was added.
-      const price_mxn_importation = freshPricing
-        ? Number(freshPricing.price_mxn_importation) || basePriceMXN
-        : Number(storedData.price_mxn_importation) || basePriceMXN;
-      const price_mxn_local = freshPricing
-        ? Number(freshPricing.price_mxn_local) || finalPrice
-        : Number(storedData.price_mxn_local) || finalPrice;
 
       return {
         importationId,
         name: cardName,
         cardName,
         price: priceString,
-        // Standardized numeric prices from mtgsrc
         price_mxn: finalPrice,
         price_mxn_importation,
         price_mxn_local,
         finalPrice,
-
         isLocalInventory: !!localStockMatch,
         source: localStockMatch ? 'hybrid' : 'importation',
         immediateDelivery: !!localStockMatch,
-        imageUrl: storedData.imageUrl || storedData.img || '',
-        language: storedData.language || 'Inglés',
-        foil: storedData.foil === true || storedData.foil === 'true' || storedData.foil === 1,
-        cardNumber: (storedData.cardNumber as string) || '',
-        expansion: (storedData.expansion as string) || '',
+        imageUrl: freshPricing?.imageUrl || storedData.imageUrl || storedData.img || '',
+        language,
+        foil: isFoil,
+        cardNumber: ((freshPricing?.cardNumber || storedData.cardNumber) as string) || '',
+        expansion: ((freshPricing?.expansion || storedData.expansion) as string) || '',
         variant: (storedData.variant as string) || '',
         metadata: (storedData.metadata as string[]) || [],
       };
@@ -538,12 +558,18 @@ export class CartService {
         `Error processing Importation product details for ${importationId}:`,
         error,
       );
+      // Do not spread storedData — it originates from user input and may contain
+      // prototype-polluting keys (__proto__, constructor, prototype).
       return {
-        ...storedData,
         importationId,
+        name: (storedData.cardName as string) || (storedData.name as string) || '',
+        cardName: (storedData.cardName as string) || (storedData.name as string) || '',
+        price: (storedData.price as string) || '',
+        imageUrl: (storedData.imageUrl as string) || (storedData.img as string) || '',
+        language: (storedData.language as string) || 'Inglés',
+        foil: storedData.foil === true || storedData.foil === 'true' || storedData.foil === 1,
         isLocalInventory: false,
         source: 'importation',
-        price: storedData.price || '',
         finalPrice: 0,
       };
     }
@@ -622,35 +648,31 @@ export class CartService {
   }
 
   /**
-   * Extract minimal required data for cart persistence
+   * Extract minimal required data for cart persistence.
+   * Only reads hardcoded known fields — never spreads user input — to prevent prototype pollution.
    */
   private extractMinimalProductData(productData: Record<string, unknown>): Record<string, unknown> {
-    const name = productData.cardName || productData.name || productData.title || '';
-    const importationIdValue = productData.importationId || '';
-    const language = productData.language || 'Inglés';
-    const foil = productData.foil === true || productData.foil === 'true' || productData.foil === 1;
-
-    // Standardized fields from the refactor
-    const category = productData.category;
-    const tcg = productData.tcg;
-    const isLocal = productData.isLocal;
-    const idLocal = productData.idLocal;
-    const isFoil = productData.isFoil;
+    const name =
+      (productData.cardName as string) ||
+      (productData.name as string) ||
+      (productData.title as string) ||
+      '';
+    const foilVal = productData.foil;
+    const foil = foilVal === true || foilVal === 'true' || foilVal === 1;
 
     return {
       name,
-      importationId: importationIdValue,
-      language,
+      cardName: name,
+      importationId: (productData.importationId as string) || '',
+      language: (productData.language as string) || 'Inglés',
       foil,
-      category,
-      tcg,
-      isLocal,
-      idLocal,
-      isFoil,
-      // Carry over other useful fields if present
+      isFoil: productData.isFoil,
+      category: productData.category,
+      tcg: productData.tcg,
+      isLocal: productData.isLocal,
+      idLocal: productData.idLocal,
       price: productData.price,
       imageUrl: productData.imageUrl,
-      cardName: name,
       cardNumber: productData.cardNumber,
       expansion: productData.expansion,
       variant: productData.variant,

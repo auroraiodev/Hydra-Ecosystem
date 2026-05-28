@@ -10,6 +10,9 @@ export interface CartItem {
     title?: string;
     price?: string | number;
     finalPrice?: number;
+    price_mxn?: number;
+    price_mxn_importation?: number;
+    price_mxn_local?: number;
     imageUrl?: string;
     img?: string;
     language?: string;

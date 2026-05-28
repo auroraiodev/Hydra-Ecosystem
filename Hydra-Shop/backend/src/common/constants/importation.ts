@@ -11,7 +11,7 @@ export const IMPORTATION_LANGUAGE_CODES = {
   SPANISH: '11',
 } as const;
 
-export const IMPORTATION_LANGUAGE_MAP: Record<string, string> = {
+export const IMPORTATION_LANGUAGE_MAP: Record<string, string> = Object.assign(Object.create(null), {
   '1': 'JAPANESE',
   '2': 'ENGLISH',
   '3': 'FRENCH',
@@ -24,9 +24,9 @@ export const IMPORTATION_LANGUAGE_MAP: Record<string, string> = {
   '10': 'RUSSIAN',
   '11': 'SPANISH',
   '12': 'ENGLISH',
-};
+});
 
-export const IMPORTATION_DISPLAY_NAMES: Record<string, string> = {
+export const IMPORTATION_DISPLAY_NAMES: Record<string, string> = Object.assign(Object.create(null), {
   JAPANESE: 'Japonés',
   ENGLISH: 'Inglés',
   FRENCH: 'Francés',
@@ -37,9 +37,9 @@ export const IMPORTATION_DISPLAY_NAMES: Record<string, string> = {
   PORTUGUESE: 'Portugués',
   RUSSIAN: 'Ruso',
   SPANISH: 'Español',
-};
+});
 
-export const IMPORTATION_SEARCH_LANG_MAP: Record<string, string> = {
+export const IMPORTATION_SEARCH_LANG_MAP: Record<string, string> = Object.assign(Object.create(null), {
   inglés: IMPORTATION_LANGUAGE_CODES.ENGLISH,
   japonés: IMPORTATION_LANGUAGE_CODES.JAPANESE,
   español: IMPORTATION_LANGUAGE_CODES.SPANISH,
@@ -50,4 +50,4 @@ export const IMPORTATION_SEARCH_LANG_MAP: Record<string, string> = {
   coreano: IMPORTATION_LANGUAGE_CODES.KOREAN,
   portugués: IMPORTATION_LANGUAGE_CODES.PORTUGUESE,
   ruso: IMPORTATION_LANGUAGE_CODES.RUSSIAN,
-};
+});
