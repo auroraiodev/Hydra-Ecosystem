@@ -29,8 +29,12 @@ const nextConfig = {
 
   images: {
     formats: ['image/avif', 'image/webp'],
-    // Disable optimization in dev to avoid remotePatterns issues with proxy URLs
-    unoptimized: process.env.NODE_ENV === 'development',
+    // Admin is an internal tool — skip Next.js image optimization entirely.
+    // Optimization requires Next.js to make an internal HTTP request to the app
+    // server to fetch the source image, which fails for proxy URLs
+    // (/api/proxy/images/external?path=...) in the Docker container.
+    // Browsers on admin networks have fast connections; the saving isn't worth the breakage.
+    unoptimized: true,
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
     remotePatterns: [
       { protocol: 'https', hostname: '**.sslip.io', pathname: '/**' },

@@ -1,47 +1,53 @@
-# BASE STAGE
-FROM oven/bun:1.3 AS base
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+FROM oven/bun:1.3 AS builder
 WORKDIR /app
 
-# BUILD STAGE
-FROM base AS builder
-# Copy workspace configuration
-COPY package.json bun.lock ./
-# Prune workspaces to only include required ones
-RUN node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.workspaces = ['apps/hydra-admin', 'packages/*']; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));"
+ARG NEXT_PUBLIC_ADMIN_URL
+ARG NEXT_PUBLIC_FRONTEND_URL
+ARG NEXT_PUBLIC_SELLER_URL
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_BACKEND_API_URL
+ARG NEXT_PUBLIC_AUTH_SERVICE_URL
 
-# Copy only required workspaces
-COPY apps/hydra-admin/package.json ./apps/hydra-admin/
-COPY packages/ui/package.json ./packages/ui/
-COPY packages/ui/ ./packages/ui/
+ENV NEXT_PUBLIC_ADMIN_URL=$NEXT_PUBLIC_ADMIN_URL \
+    NEXT_PUBLIC_FRONTEND_URL=$NEXT_PUBLIC_FRONTEND_URL \
+    NEXT_PUBLIC_SELLER_URL=$NEXT_PUBLIC_SELLER_URL \
+    NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL \
+    NEXT_PUBLIC_AUTH_SERVICE_URL=$NEXT_PUBLIC_AUTH_SERVICE_URL
 
-# Install dependencies (only for required workspaces)
-RUN --mount=type=cache,id=bun,target=/root/.bun/install/cache \
-    bun install
+COPY package.json bun.lock* ./
+COPY ../theme/package.json ../theme/bun.lock* ../theme/
 
-# Copy only admin source
-COPY apps/hydra-admin/ ./apps/hydra-admin/
+RUN bun install --frozen-lockfile
 
-# Build the admin
-WORKDIR /app/apps/hydra-admin
+COPY . .
+COPY ../theme ../theme
+
+RUN rm -rf node_modules/arcane-vault-ui && \
+    mkdir -p node_modules/arcane-vault-ui && \
+    find ../theme -maxdepth 1 -mindepth 1 ! -name 'node_modules' -exec cp -r {} node_modules/arcane-vault-ui/ \;
+
 ENV NODE_ENV=production
-# Cap Node.js heap to prevent OOM-killing the server during Next.js build
 ENV NODE_OPTIONS="--max-old-space-size=1024"
+
 RUN bun run build
 
-# RUNNER STAGE
-FROM base AS runner
+FROM oven/bun:1.3-slim AS runner
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
 
-# Assets
-COPY --from=builder /app/apps/hydra-admin/public ./apps/hydra-admin/public
-COPY --from=builder /app/apps/hydra-admin/.next/standalone ./
-COPY --from=builder /app/apps/hydra-admin/.next/static ./apps/hydra-admin/.next/static
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
 EXPOSE 3001
 
-CMD ["bun", "apps/hydra-admin/server.js"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3001/api/v1/health || exit 1
+
+CMD ["node", "server.js"]

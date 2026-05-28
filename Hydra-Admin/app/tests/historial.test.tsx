@@ -1,7 +1,6 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import HistorialPage from '@/app/(dashboard)/dashboard/historial/page';
-import { transactionsAPI } from '@/lib/api';
 
 // ─── Shared mock data ─────────────────────────────────────────────────────────
 

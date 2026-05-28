@@ -3,28 +3,54 @@ name: hydra-stores
 services:
   hydra-stores-app:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile
+    container_name: hydra-stores-app
     ports:
       - "3003:3003"
-      - "3002:3002"
+    env_file:
+      - .env
+    depends_on:
+      - hydra-stores-api
+      - redis
+    networks:
+      - stores-network
+    restart: unless-stopped
+
+  hydra-stores-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hydra-stores-api
+    ports:
+      - "3002"
     env_file:
       - .env
     environment:
       - PORT=3002
       - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
     depends_on:
       redis:
         condition: service_started
+    networks:
+      - stores-network
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
+    container_name: hydra-stores-redis
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - stores-network
     restart: unless-stopped
 
 volumes:
   redis-data:
+
+networks:
+  stores-network:
+    driver: bridge

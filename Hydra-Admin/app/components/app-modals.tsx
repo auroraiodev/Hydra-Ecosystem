@@ -3,7 +3,7 @@
 import { useModal } from './providers/modal-context';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { LoadingModal } from '@/components/ui/loading-modal';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog } from '@/components/ui/dialog';
 
 export function AppModals() {
   const { modalType, modalProps, hideModal } = useModal();

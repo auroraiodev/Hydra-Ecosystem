@@ -3,33 +3,33 @@ import '@testing-library/jest-dom';
 
 // Setup jsdom environment FIRST
 if (typeof window === 'undefined') {
-  // @ts-ignore - jsdom environment setup for testing
+  // @ts-expect-error - jsdom environment setup for testing
   global.window = {};
-  // @ts-ignore - jsdom environment setup for testing
+  // @ts-expect-error - jsdom environment setup for testing
   global.document = global.window;
-  // @ts-ignore - jsdom environment setup for testing
+  // @ts-expect-error - jsdom environment setup for testing
   global.navigator = {
     userAgent: 'node.js',
   };
-  // @ts-ignore - jsdom environment setup for testing
+  // @ts-expect-error - jsdom environment setup for testing
   global.screen = {};
-  // @ts-ignore - jsdom environment setup for testing
+  // @ts-expect-error - jsdom environment setup for testing
   global.getComputedStyle = () => {
     return {
       display: 'none',
       appearance: ['-moz-appearance'],
     };
   };
-  // @ts-ignore - jsdom environment setup for testing
+  // @ts-expect-error - jsdom environment setup for testing
   global.URL = class URL {
-    constructor(url: string, base?: string) {
-      this.href = url;
+    constructor(_url: string, _base?: string) {
+      this.href = _url;
       this.origin = 'http://localhost';
       this.protocol = 'http:';
       this.host = 'localhost';
       this.hostname = 'localhost';
       this.port = '';
-      this.pathname = url.replace(/^https?:\/\/[^/]/, '/');
+      this.pathname = _url.replace(/^https?:\/\/[^/]/, '/');
       this.search = '';
       this.hash = '';
     }
@@ -38,13 +38,13 @@ if (typeof window === 'undefined') {
 
 // Add vi.mocked if not available (for older Vitest versions)
 if (!vi.mocked) {
-  vi.mocked = <T>(module: T, options?: { shallow?: boolean }) => {
+  vi.mocked = <T>(module: T, _options?: { shallow?: boolean }) => {
     // Return a mock version of the module
     return new Proxy(() => {}, {
       get: (_, prop: string) => {
         if (prop === '__esModule') return true;
         if (prop === 'default') return () => {};
-        return typeof module[prop as keyof T] === 'function' ? vi.fn() : (module as any)[prop];
+        return typeof module[prop as keyof T] === 'function' ? vi.fn() : (module as Record<string, unknown>)[prop];
       },
     }) as unknown as ReturnType<typeof vi.mocked<T>>;
   };
@@ -100,8 +100,7 @@ const MockWebSocket = vi.fn(() => ({
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
   readyState: 1,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-})) as any;
+})) as unknown as typeof WebSocket;
 
 MockWebSocket.CONNECTING = 0;
 MockWebSocket.OPEN = 1;

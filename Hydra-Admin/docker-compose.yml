@@ -1,17 +1,27 @@
-# ============================================================
-# docker-compose.yml — Hydra Admin
-# Services: Next.js admin frontend, NestJS backend, Redis
-# ============================================================
-
 services:
   hydra-admin-app:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile
     container_name: hydra-admin-app
     ports:
-      - "3001:3001"   # Next.js admin dashboard
-      - "3002:3002"   # NestJS backend API
+      - "3001:3001"
+    env_file:
+      - .env
+    depends_on:
+      - hydra-admin-api
+      - redis
+    restart: unless-stopped
+    networks:
+      - hydra-network
+
+  hydra-admin-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hydra-admin-api
+    ports:
+      - "3002"
     env_file:
       - .env
     environment:

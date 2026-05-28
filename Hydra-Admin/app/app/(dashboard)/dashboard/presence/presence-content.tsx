@@ -141,7 +141,7 @@ function LiveTab() {
   const handleBlock = async (entry: OnlineUser) => {
     const { ip_address, user_id } = entry;
     try {
-      const calls: Promise<any>[] = [];
+      const calls: Promise<unknown>[] = [];
       if (ip_address) calls.push(presenceAPI.blockIp({ ip: ip_address, reason: 'Blocked from live view' }));
       calls.push(presenceAPI.blockUser({ userId: user_id, reason: 'Blocked from live view' }));
       await Promise.all(calls);
@@ -284,7 +284,6 @@ function HistoryTab() {
     } finally {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
 
   useEffect(() => {
@@ -299,7 +298,7 @@ function HistoryTab() {
 
   const handleBlock = async (v: VisitEntry) => {
     try {
-      const calls: Promise<any>[] = [];
+      const calls: Promise<unknown>[] = [];
       if (v.ip_address) calls.push(presenceAPI.blockIp({ ip: v.ip_address, reason: 'Blocked from history' }));
       calls.push(presenceAPI.blockUser({ userId: v.user_id, reason: 'Blocked from history' }));
       await Promise.all(calls);
@@ -463,7 +462,7 @@ function BlockedTab() {
     const userId = newUserId.trim();
     if (!ip && !userId) return;
     try {
-      const calls: Promise<any>[] = [];
+      const calls: Promise<unknown>[] = [];
       if (ip) calls.push(presenceAPI.blockIp({ ip, reason: newReason.trim() || undefined }));
       if (userId) calls.push(presenceAPI.blockUser({ userId, reason: newReason.trim() || undefined }));
       await Promise.all(calls);
