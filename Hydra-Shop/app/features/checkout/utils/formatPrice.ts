@@ -12,8 +12,8 @@ export function formatPrice(price: string | number): ReactElement {
   if (typeof price === 'number') {
     const formatted = PRICE_FORMATTER.format(isNaN(price) ? 0 : price);
 
-    return createElement('span', { className: 'tabular-nums' }, formatted);
+    return createElement('span', { className: 'tabular-nums mr-1' }, formatted);
   }
 
-  return createElement('span', { className: 'tabular-nums' }, price);
+  return createElement('span', { className: 'tabular-nums mr-1' }, price);
 }
