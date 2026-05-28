@@ -177,6 +177,7 @@ const CarouselItem = ({
   ref,
   id,
   style,
+  children,
 }: React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) => {
   const { orientation } = useCarousel();
 
@@ -192,7 +193,9 @@ const CarouselItem = ({
       )}
       id={id}
       style={style}
-    />
+    >
+      {children}
+    </div>
   );
 };
 
