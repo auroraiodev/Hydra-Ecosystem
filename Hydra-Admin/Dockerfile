@@ -73,12 +73,10 @@ ENV HOSTNAME="0.0.0.0"
 COPY --from=builder /workspace/app/.next/standalone ./
 COPY --from=builder /workspace/app/.next/static ./.next/static
 COPY --from=builder /workspace/app/public ./public
-COPY ws-proxy.js ./ws-proxy.js
 
 EXPOSE 3001
 
-HEALTHCHECK --interval=30s --timeout=15s --start-period=45s --retries=3 \
-  CMD curl -sf http://localhost:3010/api/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -sf http://localhost:3001/api/health || exit 1
 
-# ws-proxy on 3001 (public), Next.js on 3010 (internal)
-CMD PORT=3010 bun server.js & PORT=3001 NEXT_PORT=3010 bun ws-proxy.js
+CMD ["node", "server.js"]
