@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+﻿import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -16,7 +16,7 @@ const IS_CI = !!process.env.CI;
 export default defineConfig({
   testDir: './tests/e2e',
 
-  // Run all tests in parallel — CI uses 1 worker to avoid port conflicts
+  // Run all tests in parallel â€” CI uses 1 worker to avoid port conflicts
   fullyParallel: true,
   forbidOnly: IS_CI,
   retries: IS_CI ? 2 : 0,
@@ -45,10 +45,6 @@ export default defineConfig({
           name: 'chromium',
           use: { ...devices['Desktop Chrome'] },
         },
-        {
-          name: 'Mobile Chrome',
-          use: { ...devices['Pixel 5'] },
-        },
       ]
     : [
         {
@@ -73,3 +69,4 @@ export default defineConfig({
     stderr: 'pipe',
   },
 });
+

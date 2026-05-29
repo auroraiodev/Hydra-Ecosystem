@@ -1,20 +1,20 @@
-name: Playwright Tests (Marketplace)
+﻿name: Playwright Tests (Shop)
 
 on:
   push:
     branches: [main, master, develop]
     paths:
-      - 'hydra-fe/**'
+      - 'app/**'
       - 'package.json'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/playwright-e2e.yml'
+      - 'bun.lock'
+      - '.github/workflows/playwright.yml'
   pull_request:
     branches: [main, master, develop]
     paths:
-      - 'hydra-fe/**'
+      - 'app/**'
       - 'package.json'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/playwright-e2e.yml'
+      - 'bun.lock'
+      - '.github/workflows/playwright.yml'
 
 jobs:
   test:
@@ -22,32 +22,25 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: hydra-fe
+        working-directory: app
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
+          bun-version: latest
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
         working-directory: .
 
       - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps chromium
+        run: bunx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: pnpm exec playwright test
+        run: bunx playwright test
         env:
           CI: true
           NEXT_PUBLIC_API_URL: 'http://localhost:3002'
@@ -57,6 +50,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-fe
-          path: hydra-fe/playwright-report/
+          name: playwright-report-shop
+          path: app/playwright-report/
           retention-days: 30
