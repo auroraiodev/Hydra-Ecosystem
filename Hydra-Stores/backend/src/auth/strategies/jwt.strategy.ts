@@ -45,6 +45,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User account is inactive');
     }
 
+    if (payload.role !== 'SELLER' && payload.role !== 'ADMIN') {
+      throw new UnauthorizedException('Access denied. Seller or Admin role required.');
+    }
+
+    if (user.role?.name !== 'SELLER' && user.role?.name !== 'ADMIN') {
+      throw new UnauthorizedException('Access denied. Seller or Admin role required.');
+    }
+
     return user;
   }
 }
