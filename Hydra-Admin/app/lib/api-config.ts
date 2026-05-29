@@ -8,7 +8,7 @@ const getBackendBaseUrl = () => {
     process.env.API_URL_INTERNAL ||
     process.env.NEXT_PUBLIC_BACKEND_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
-    'http://127.0.0.1:3002/api';
+    (process.env.NODE_ENV === 'production' ? 'http://hydra-admin-api:3002/api' : 'http://127.0.0.1:3002/api');
 
   const normalized = base.trim().replace(/\/+$/, '').replace('localhost', '127.0.0.1');
 
@@ -29,7 +29,7 @@ const getBackendRootUrl = () => {
     process.env.API_URL_INTERNAL ||
     process.env.NEXT_PUBLIC_BACKEND_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
-    'http://127.0.0.1:3002/api';
+    (process.env.NODE_ENV === 'production' ? 'http://hydra-admin-api:3002/api' : 'http://127.0.0.1:3002/api');
 
   return base.trim().replace(/\/+$/, '').replace('localhost', '127.0.0.1')
     .replace(/\/api\/v1$/, '')

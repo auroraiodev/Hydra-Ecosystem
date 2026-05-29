@@ -18,10 +18,10 @@ import { URL } from 'url';
 const PORT      = parseInt(process.env.PORT      || '3001', 10);
 const NEXT_PORT = parseInt(process.env.NEXT_PORT || '3010', 10);
 
-const _chatUrl  = process.env.CHAT_SERVICE_URL || 'http://127.0.0.1:3007';
+const _chatUrl  = process.env.CHAT_SERVICE_URL || (process.env.NODE_ENV === 'production' ? 'http://hydra-admin-api:3002' : 'http://127.0.0.1:3002');
 const _parsed   = new URL(_chatUrl);
 const CHAT_HOST = _parsed.hostname;
-const CHAT_PORT = parseInt(_parsed.port || '3007', 10);
+const CHAT_PORT = parseInt(_parsed.port || '3002', 10);
 
 function proxyHttp(req, res, targetHost, targetPort) {
   const upstream = http.request(
