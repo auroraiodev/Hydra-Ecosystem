@@ -8,21 +8,18 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Intercept and proxy Google OAuth routes directly to the NestJS backend.
+  // NOTE: Next.js middleware runs on the Edge Runtime — only NEXT_PUBLIC_* env vars
+  // are available here. Non-public vars like API_URL_INTERNAL are NOT accessible.
+  // The NestJS backend is co-located in the same container on port 3002 (internal),
+  // so we derive the backend base from the public auth URL and rewrite accordingly.
   if (pathname === '/auth/google' || pathname === '/auth/google/callback') {
     const backendBase = (
-      process.env.API_URL_INTERNAL ||
-      process.env.NEXT_PUBLIC_BACKEND_API_URL ||
+      process.env.NEXT_PUBLIC_AUTH_SERVICE_URL ||
       process.env.NEXT_PUBLIC_API_URL ||
-      (process.env.NODE_ENV === 'production' ? 'http://hydra-admin-api:3002/api' : 'http://127.0.0.1:3002/api')
-    ).replace(/\/$/, '');
+      'https://admin.hydracollect.com'
+    ).replace(/\/$/, '').replace(/\/api(?:\/v1)?$/, '');
 
-    let backendClean = backendBase;
-    if (backendClean.endsWith('/api')) {
-      backendClean = backendClean.slice(0, -4);
-    } else if (backendClean.endsWith('/api/v1')) {
-      backendClean = backendClean.slice(0, -7);
-    }
-    const targetUrl = new URL(`${backendClean}/api/v1${pathname}${request.nextUrl.search}`);
+    const targetUrl = new URL(`${backendBase}/api/v1${pathname}${request.nextUrl.search}`);
     return NextResponse.rewrite(targetUrl);
   }
 
