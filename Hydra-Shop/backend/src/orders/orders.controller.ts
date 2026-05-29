@@ -92,6 +92,14 @@ export class OrdersController {
     return this.ordersService.payWithMercadoPago(user.id, id);
   }
 
+  @Post(':id/cancel')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cancel a pending order (e.g. user abandoned MP payment)' })
+  @ApiResponse({ status: 200, description: 'Order cancelled successfully' })
+  async cancelOrder(@Param('id') id: string, @CurrentUser() user: UserWithRole) {
+    return this.ordersService.cancelPendingOrder(id, user.id);
+  }
+
   @Post(':id/verify-payment')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify Mercado Pago payment status after redirect' })

@@ -285,6 +285,21 @@ export async function payWithWallet(orderId: string): Promise<void> {
 }
 
 /**
+ * Cancel a pending order (e.g. user abandoned the MP payment flow)
+ */
+export async function cancelOrder(orderId: string): Promise<void> {
+  const response = await fetch(`${API_URL}/orders/${orderId}/cancel`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to cancel order' }));
+    throw new Error(error.message || 'Failed to cancel order');
+  }
+}
+
+/**
  * Create a Mercado Pago preference for an existing PENDING order
  * (e.g. user chose transfer but wants to pay via MP instead)
  */

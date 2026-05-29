@@ -70,7 +70,9 @@ export function OrderSidebarSummary({
 
         {order.status === 'PENDING' && (
           <div className="flex flex-col gap-y-3 pt-2">
-            {order.payment?.paymentMethod === 'transfer' && (
+            {/* Show MP button for transfer orders (upgrade) or mercadopago orders (retry) */}
+            {(order.payment?.paymentMethod === 'transfer' ||
+              order.payment?.paymentMethod === 'mercadopago') && (
               <FlowButton
                 onClick={onPayWithMercadoPago}
                 disabled={isProcessing}
@@ -86,13 +88,16 @@ export function OrderSidebarSummary({
                 ) : (
                   <span className="flex items-center gap-2">
                     <CreditCard className="size-4" />
-                    Pagar con Mercado Pago
+                    {order.payment?.paymentMethod === 'mercadopago'
+                      ? 'Reintentar con Mercado Pago'
+                      : 'Pagar con Mercado Pago'}
                     <ArrowRight className="size-4" />
                   </span>
                 )}
               </FlowButton>
             )}
 
+            {/* Show wallet button for non-transfer orders */}
             {order.payment?.paymentMethod !== 'transfer' && (
               <>
                 <FlowButton

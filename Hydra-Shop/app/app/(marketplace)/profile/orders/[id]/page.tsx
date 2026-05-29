@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useReducer, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 import { useProfileStats } from '@/features/profile/hooks/useProfileStats';
-import { getOrder, payWithWallet, payWithMercadoPago, type OrderResponse } from '@/lib/api/orders';
+import { getOrder, payWithWallet, payWithMercadoPago, cancelOrder, type OrderResponse } from '@/lib/api/orders';
 import {
   OrderTimeline,
   OrderInfoCards,
@@ -60,6 +60,7 @@ export default function OrderDetailPage({
   const params = use(paramsPromise);
   const orderId = params.id;
   const { back, push } = useRouter();
+  const searchParams = useSearchParams();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { balance } = useProfileStats(isAuthenticated, {
     fetchOrders: false,
@@ -89,9 +90,27 @@ export default function OrderDetailPage({
     }
   }, [isAuthenticated, authLoading, push]);
 
+  // When MP redirects back with ?status=failure (user cancelled or card rejected),
+  // cancel the still-PENDING order and send the user back to the cart.
+  useEffect(() => {
+    const mpStatus = searchParams.get('status');
+    if (mpStatus !== 'failure' || !isAuthenticated || authLoading) return;
+
+    let cancelled = false;
+    cancelOrder(orderId)
+      .catch(() => { /* already cancelled or not found — ignore */ })
+      .finally(() => {
+        if (!cancelled) push('/cart');
+      });
+
+    return () => { cancelled = true; };
+  }, [searchParams, orderId, isAuthenticated, authLoading, push]);
+
   useEffect(() => {
     async function fetchOrder() {
       if (!isAuthenticated) return;
+      // Don't bother fetching if we're about to redirect away
+      if (searchParams.get('status') === 'failure') return;
       orderDispatch({ type: 'FETCH_START' });
       try {
         const data = await getOrder(orderId);
@@ -105,7 +124,7 @@ export default function OrderDetailPage({
       }
     }
     fetchOrder();
-  }, [orderId, isAuthenticated]);
+  }, [orderId, isAuthenticated, searchParams]);
 
   const handlePayWithWallet = async () => {
     try {
