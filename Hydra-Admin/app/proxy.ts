@@ -7,6 +7,25 @@ const ADMIN_ONLY_ROLES = ['ADMIN'];
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Intercept and proxy Google OAuth routes directly to the NestJS backend.
+  if (pathname === '/auth/google' || pathname === '/auth/google/callback') {
+    const backendBase = (
+      process.env.API_URL_INTERNAL ||
+      process.env.NEXT_PUBLIC_BACKEND_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      (process.env.NODE_ENV === 'production' ? 'http://hydra-admin-api:3002/api' : 'http://127.0.0.1:3002/api')
+    ).replace(/\/$/, '');
+
+    let backendClean = backendBase;
+    if (backendClean.endsWith('/api')) {
+      backendClean = backendClean.slice(0, -4);
+    } else if (backendClean.endsWith('/api/v1')) {
+      backendClean = backendClean.slice(0, -7);
+    }
+    const targetUrl = new URL(`${backendClean}/api/v1${pathname}${request.nextUrl.search}`);
+    return NextResponse.rewrite(targetUrl);
+  }
+
   if (!pathname.startsWith('/dashboard') && !pathname.startsWith('/profile')) {
     return NextResponse.next();
   }
@@ -51,7 +70,12 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/profile/:path*'],
+  matcher: [
+    '/dashboard/:path*', 
+    '/profile/:path*',
+    '/auth/google',
+    '/auth/google/callback'
+  ],
 };
 
 export default proxy;

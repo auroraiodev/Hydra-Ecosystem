@@ -70,4 +70,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3002/api/v1/health || exit 1
 
 # NestJS on 3002, Next.js on 3003 (foreground, keeps container alive)
-CMD bunx prisma migrate deploy --schema backend/prisma/schema.prisma 2>/dev/null; bun backend/dist/main.js & bun server.js
+# PORT env is 3003 (Next.js); override to 3002 for NestJS only to avoid port conflict
+CMD bunx prisma migrate deploy --schema backend/prisma/schema.prisma 2>/dev/null; PORT=3002 bun backend/dist/main.js & bun server.js

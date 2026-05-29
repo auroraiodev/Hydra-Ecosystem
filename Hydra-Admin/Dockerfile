@@ -1,10 +1,10 @@
 # =============================================================================
-# Hydra Admin — Root Dockerfile (build context: Hydra-Admin/)
+# Hydra Admin — Combined Dockerfile (frontend + NestJS backend)
 #
-# Coolify deploys from Hydra-Admin/ and expects a Dockerfile here.
-# This builds the Next.js frontend (app/) with the shared theme package (theme/)
-# which lives as a sibling and is referenced via the workspace alias
-# "arcane-vault-ui": "../theme" in app/package.json.
+# Port layout inside the container:
+#   3001  ws-proxy (public, exposed to Traefik/Coolify)
+#   3002  NestJS backend (internal)
+#   3010  Next.js standalone (internal)
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -30,21 +30,19 @@ ENV NEXT_PUBLIC_ADMIN_URL=$NEXT_PUBLIC_ADMIN_URL \
     NEXT_PUBLIC_AUTH_SERVICE_URL=$NEXT_PUBLIC_AUTH_SERVICE_URL \
     NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
-# Copy lockfiles & manifests first for layer caching
+# ── 1. Frontend deps (cached layer) ──────────────────────────────────────────
 COPY app/package.json app/bun.lock* ./app/
 COPY theme/package.json theme/bun.lock* ./theme/
 
-# Install app dependencies (bun resolves "../theme" workspace link from app/)
 WORKDIR /workspace/app
 RUN bun install --frozen-lockfile
 
-# Copy full source
+# ── 2. Frontend source ────────────────────────────────────────────────────────
 WORKDIR /workspace
 COPY app ./app
 COPY theme ./theme
 
-# Inline the local theme package into node_modules so Next.js can resolve it
-# (mirrors what app/Dockerfile does when theme is a sibling directory)
+# Inline local theme package so Next.js can resolve arcane-vault-ui
 RUN rm -rf /workspace/app/node_modules/arcane-vault-ui && \
     mkdir -p /workspace/app/node_modules/arcane-vault-ui && \
     find /workspace/theme -maxdepth 1 -mindepth 1 ! -name 'node_modules' \
@@ -55,6 +53,17 @@ ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 WORKDIR /workspace/app
 RUN bun run build
+
+# ── 3. Backend (NestJS) ───────────────────────────────────────────────────────
+WORKDIR /workspace
+COPY backend/package.json backend/bun.lock* ./backend/
+COPY backend/ ./backend/
+
+WORKDIR /workspace/backend
+RUN bun install && \
+    bunx prisma generate && \
+    bun scripts/fix-prisma-client-resolution.cjs && \
+    bun run build:api:only
 
 # ---------------------------------------------------------------------------
 # Stage 2: Runner
@@ -69,16 +78,31 @@ RUN apt-get update && \
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
+# NestJS is co-located in this container — route chat/WS to localhost
+ENV CHAT_SERVICE_URL=http://127.0.0.1:3002
 
+# Next.js standalone output
 COPY --from=builder /workspace/app/.next/standalone ./
 COPY --from=builder /workspace/app/.next/static ./.next/static
 COPY --from=builder /workspace/app/public ./public
 
+# ws-proxy (public entry point on :3001)
 COPY ws-proxy.js ./ws-proxy.js
 
+# NestJS backend
+COPY --from=builder /workspace/backend/dist ./backend/dist
+COPY --from=builder /workspace/backend/node_modules ./backend/node_modules
+COPY --from=builder /workspace/backend/package.json ./backend/package.json
+COPY --from=builder /workspace/backend/prisma ./backend/prisma
+
 EXPOSE 3001
+EXPOSE 3002
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -sf http://localhost:3001/api/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:3002/api/v1/health || exit 1
 
-CMD ["sh", "-c", "PORT=3010 bun server.js & PORT=3001 NEXT_PORT=3010 bun ws-proxy.js"]
+# NestJS on 3002 (background), Next.js on 3010 (background), ws-proxy on 3001 (foreground)
+CMD bunx prisma migrate deploy --schema backend/prisma/schema.prisma 2>/dev/null; \
+    PORT=3002 bun backend/dist/main.js & \
+    PORT=3010 bun server.js & \
+    PORT=3001 NEXT_PORT=3010 bun ws-proxy.js
