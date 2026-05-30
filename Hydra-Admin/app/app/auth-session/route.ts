@@ -1,17 +1,18 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { COOKIE_NAME } from '@/lib/cookie-crypto';
+import { decryptCookie, COOKIE_NAME } from '@/lib/cookie-crypto';
 
 export async function GET(request: NextRequest) {
   try {
     const raw = request.cookies.get(COOKIE_NAME)?.value;
+    const token = raw ? decryptCookie(raw) : null;
 
-    if (!raw) {
-      console.log('[Session API] No raw cookie found');
+    if (!token) {
+      console.log('[Session API] No raw cookie found or decryption failed');
       return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
     // Decode JWT payload (base64url / base64) — no secret required to check structure/expiration
-    const parts = raw.split('.');
+    const parts = token.split('.');
     if (parts.length !== 3) {
       console.warn('[Session API] Invalid JWT structure');
       return NextResponse.json({ authenticated: false }, { status: 200 });
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
 
     const profileRes = await fetch(backendUrl, {
       headers: {
-        'Authorization': `Bearer ${raw}`,
+        'Authorization': `Bearer ${token}`,
       },
       cache: 'no-store',
     });
