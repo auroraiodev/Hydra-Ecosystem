@@ -93,8 +93,9 @@ export function ChatInput({
           value={input}
           onChange={handleInputChange}
           onKeyDown={handleKey}
-          placeholder="Escribe un mensaje..."
-          className="flex-1 resize-none rounded-xl pl-4 pr-3 py-3 text-[13px] text-vault-text placeholder-vault-text-muted/40 outline-none transition-all bg-white/5 border border-white/10 focus:border-teal focus:ring-1 focus:ring-teal/20 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent"
+          disabled={!isConnected}
+          placeholder={isConnected ? 'Escribe un mensaje...' : 'Conectando...'}
+          className={`flex-1 resize-none rounded-xl pl-4 pr-3 py-3 text-[13px] placeholder-vault-text-muted/40 outline-none transition-all bg-white/5 border border-white/10 focus:border-teal focus:ring-1 focus:ring-teal/20 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent ${isConnected ? 'text-vault-text' : 'text-vault-text-muted/40 cursor-not-allowed opacity-60'}`}
           style={{
             maxHeight: '120px',
             lineHeight: '1.5',
