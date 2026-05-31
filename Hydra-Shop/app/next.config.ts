@@ -218,6 +218,11 @@ const nextConfig: NextConfig = {
           source: '/uploads/:path*',
           destination: `${backendBase}/uploads/:path*`,
         },
+        // Chat service REST API — route /api/chat/* to Hydra-Chat via its API route handler
+        {
+          source: '/api/chat/:path*',
+          destination: '/api/chat/:path*',
+        },
         // General API catch-all: /api/<anything> → backend /api/v1/<anything>
         {
           source: '/api/:path*',

@@ -84,8 +84,11 @@ const server = http.createServer((req, res) => {
   ) {
     // Auth, Proxy, and Health endpoints managed by Next.js frontend (port 3010)
     proxyHttp(req, res, '127.0.0.1', NEXT_PORT);
-  } else if (url.startsWith('/api/v1/admin/presence')) {
-    // Presence data → Hydra-Chat service (port 3007)
+  } else if (
+    url.startsWith('/api/v1/admin/presence') ||
+    url.startsWith('/api/chat')
+  ) {
+    // Presence data and chat REST API → Hydra-Chat service (port 3007)
     proxyHttp(req, res, HC_HOST, HC_PORT, false);
   } else if (url.startsWith('/api/')) {
     // API traffic → NestJS backend (port 3002) with /v1 versioning
