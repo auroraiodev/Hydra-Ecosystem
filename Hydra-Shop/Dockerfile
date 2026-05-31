@@ -17,15 +17,18 @@ ARG NEXT_PUBLIC_APP_URL
 ARG NEXT_PUBLIC_ADMIN_URL
 ARG NEXT_PUBLIC_SELLER_URL
 ARG NEXT_PUBLIC_AUTH_SERVICE_URL
-# Hydra-Chat service URL — passed at build time by Coolify (points to the hydra-chat container)
+# Hydra-Chat service URL — passed at build time by Coolify
 ARG CHAT_SERVICE_URL=https://chat.hydracollect.com
+# NEXT_PUBLIC_CHAT_URL is baked into the bundle (useChatSocket/usePresence read it)
+ARG NEXT_PUBLIC_CHAT_URL=https://chat.hydracollect.com
 
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
     NEXT_PUBLIC_ADMIN_URL=$NEXT_PUBLIC_ADMIN_URL \
     NEXT_PUBLIC_SELLER_URL=$NEXT_PUBLIC_SELLER_URL \
     NEXT_PUBLIC_AUTH_SERVICE_URL=$NEXT_PUBLIC_AUTH_SERVICE_URL \
-    CHAT_SERVICE_URL=$CHAT_SERVICE_URL
+    CHAT_SERVICE_URL=$CHAT_SERVICE_URL \
+    NEXT_PUBLIC_CHAT_URL=$NEXT_PUBLIC_CHAT_URL
 
 # ── 1. Install workspace deps ─────────────────────────────────
 # Place app at apps/hydra-fe and theme at apps/theme so that

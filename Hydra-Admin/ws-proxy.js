@@ -38,9 +38,11 @@ function proxyHttp(req, res, targetHost, targetPort, addV1Prefix = false) {
   // Clone headers and inject Authorization from cookie for Hydra-Chat calls
   const headers = { ...req.headers };
   if (!headers.authorization && headers.cookie) {
-    // Extract accessToken JWT cookie and forward as Bearer token to Hydra-Chat
+    // Extract JWT from __sid cookie (admin) or accessToken cookie (shop)
     const cookies = (headers.cookie || '').split(';').map((c) => c.trim());
-    const token = cookies.find((c) => c.startsWith('accessToken='));
+    const token =
+      cookies.find((c) => c.startsWith('__sid=')) ??
+      cookies.find((c) => c.startsWith('accessToken='));
     if (token) {
       const value = token.split('=')[1];
       if (value) headers.authorization = `Bearer ${value}`;
