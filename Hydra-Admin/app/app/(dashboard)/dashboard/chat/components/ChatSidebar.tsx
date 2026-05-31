@@ -1,12 +1,24 @@
 'use client';
 
+import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import {
   Chat24Regular,
   Alert24Regular,
   AlertOff24Regular,
   People24Regular,
+  Add24Regular,
 } from '@fluentui/react-icons';
 import { cn } from '@/lib/utils';
 import { format, isToday } from 'date-fns';
@@ -23,6 +35,14 @@ interface ChatConversation {
   isOnline?: boolean;
 }
 
+interface User {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+}
+
 interface ChatSidebarProps {
   conversations: ChatConversation[];
   activeUserId: string | null;
@@ -34,6 +54,8 @@ interface ChatSidebarProps {
   onPushToggle: () => void;
   isConnected: boolean;
   mobileView: 'list' | 'chat';
+  users: User[];
+  onSelectUser: (user: User) => void;
 }
 
 export function ChatSidebar({
@@ -47,7 +69,10 @@ export function ChatSidebar({
   onPushToggle,
   isConnected,
   mobileView,
+  users,
+  onSelectUser,
 }: ChatSidebarProps) {
+  const [searchOpen, setSearchOpen] = useState(false);
   return (
     <div
       className={cn(
@@ -102,6 +127,51 @@ export function ChatSidebar({
             <span className="hidden sm:inline">{isConnected ? 'Online' : 'Offline'}</span>
           </div>
         </div>
+      </div>
+
+      {/* Initiate chat with any user */}
+      <div className="p-3 border-b bg-card shrink-0">
+        <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-xs font-normal text-muted-foreground h-9 px-3 cursor-pointer"
+            >
+              <Add24Regular className="mr-2 size-4 opacity-70 shrink-0 text-primary" />
+              <span>Iniciar chat con usuario…</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Buscar por nombre o correo…" />
+              <CommandList>
+                <CommandEmpty>No se encontraron usuarios.</CommandEmpty>
+                <CommandGroup heading="Usuarios">
+                  {users.map((user) => (
+                    <CommandItem
+                      key={user.id}
+                      value={`${user.first_name || ''} ${user.last_name || ''} ${user.email} ${user.username || ''}`}
+                      onSelect={() => {
+                        onSelectUser(user);
+                        setSearchOpen(false);
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-medium truncate">
+                          {[user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || user.email}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground truncate">
+                          {user.email}
+                        </span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Conversation list */}
