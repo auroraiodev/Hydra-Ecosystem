@@ -5,7 +5,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: process.env.CI === 'true' ? undefined : 'standalone',
   transpilePackages: ['arcane-vault-ui'],
   poweredByHeader: false,
   compress: true,

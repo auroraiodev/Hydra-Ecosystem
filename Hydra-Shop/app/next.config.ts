@@ -68,7 +68,7 @@ const withBundleAnalyzer = withBundleAnalyzerInit({
 // CSP is now handled dynamically in proxy.ts middleware.
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  output: process.env.CI === 'true' ? undefined : 'standalone',
   productionBrowserSourceMaps: false,
   // Ensure no sources are leaked in standard build output
   generateBuildId: async () => 'production',
