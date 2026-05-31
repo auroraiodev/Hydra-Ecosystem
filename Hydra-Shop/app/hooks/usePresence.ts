@@ -6,11 +6,14 @@ import { useAppSelector } from '@/lib/store';
 import { tokenStore } from '@/lib/utils/tokenStore';
 
 function getWsUrl(): string {
-  if (typeof window === 'undefined') return 'http://localhost:3002';
+  const envChatUrl = process.env.NEXT_PUBLIC_CHAT_URL;
+  if (envChatUrl) return envChatUrl;
+
+  if (typeof window === 'undefined') return 'http://localhost:3007';
   const { hostname, protocol } = window.location;
-  if (hostname === 'localhost' || hostname === '127.0.0.1') return `http://${hostname}:3002`;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') return `http://${hostname}:3007`;
   const wsProtocol = protocol === 'https:' ? 'https:' : 'http:';
-  if (hostname.endsWith('hydracollect.com')) return `${wsProtocol}//${hostname}`;
+  if (hostname.endsWith('hydracollect.com')) return `${wsProtocol}//chat.hydracollect.com`;
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
   if (envUrl?.startsWith('http')) return envUrl.replace(/\/api$/, '');
   return window.location.origin;
