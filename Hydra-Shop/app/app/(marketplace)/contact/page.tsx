@@ -30,7 +30,7 @@ export default function ContactPage() {
     url: 'https://hydracollect.com/contact',
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'soporte@hydracollectables.com',
+      email: 'darmfma@gmail.com',
       contactType: 'customer support',
       availableLanguage: ['Spanish', 'English'],
     },
