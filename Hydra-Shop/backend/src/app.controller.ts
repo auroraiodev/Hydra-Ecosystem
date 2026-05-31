@@ -1,15 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AppService } from './app.service.js';
 import { PrismaService } from './database/prisma.service.js';
 import { Public } from './auth/guards/jwt-auth.guard.js';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { NotifyClientService } from './notify-client/notify-client.service.js';
 
 @ApiTags('App')
 @Controller()
+@Public()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly prisma: PrismaService,
+    private readonly notifyClient: NotifyClientService,
   ) {}
 
   @Public()
@@ -21,6 +24,21 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'Greeting returned.' })
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Post('contact')
+  @Public()
+  @ApiOperation({
+    summary: 'Submit contact form',
+    description: 'Submits a contact form and sends an email notification to the administrator.',
+  })
+  @ApiResponse({ status: 201, description: 'Message sent successfully.' })
+  async submitContact(
+    @Body() body: { name: string; email: string; subject?: string; message: string },
+  ) {
+    const formattedMessage = `Email: ${body.email}\nAsunto: ${body.subject || 'Sin Asunto'}\n\nMensaje:\n${body.message}`;
+    await this.notifyClient.sendChatAlert(body.name, formattedMessage);
+    return { success: true };
   }
 
   @Get('health')

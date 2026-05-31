@@ -185,6 +185,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: '/home', destination: '/', permanent: true },
+      { source: '/shipping', destination: '/help?category=shipping', permanent: true },
+      { source: '/faq', destination: '/help', permanent: true },
+      { source: '/refunds', destination: '/returns', permanent: true },
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'www.hydracollect.com' }],
