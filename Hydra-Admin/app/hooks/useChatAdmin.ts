@@ -71,8 +71,14 @@ type ChatAction =
 
 function chatReducer(state: ChatState, action: ChatAction): ChatState {
   switch (action.type) {
-    case 'SET_CONVERSATIONS':
-      return { ...state, conversations: action.conversations };
+    case 'SET_CONVERSATIONS': {
+      const currentConvos = state.conversations;
+      const merged = action.conversations.map((c) => {
+        const existing = currentConvos.find((prev) => prev.userId === c.userId);
+        return { ...c, isOnline: existing?.isOnline ?? false };
+      });
+      return { ...state, conversations: merged };
+    }
     case 'SET_ACTIVE_USER_ID':
       return { ...state, activeUserId: action.userId };
     case 'SET_ACTIVE_MESSAGES':
@@ -176,6 +182,9 @@ interface UseChatAdminReturn {
 }
 
 function getWsUrl(): string {
+  const envChatUrl = process.env.NEXT_PUBLIC_CHAT_URL;
+  if (envChatUrl) return envChatUrl;
+
   if (typeof window === 'undefined') {
     return (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002').replace(/\/api$/, '');
   }
@@ -188,7 +197,7 @@ function getWsUrl(): string {
   const wsProtocol = protocol === 'https:' ? 'https:' : 'http:';
 
   if (hostname.endsWith('hydracollect.com')) {
-    return `${wsProtocol}//${hostname}`;
+    return `${wsProtocol}//chat.hydracollect.com`;
   }
 
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -235,19 +244,15 @@ export function useChatAdmin(): UseChatAdminReturn {
       if (res.ok) {
         const json = await res.json();
         const data: ChatConversation[] = json.data || [];
-        // Map current online status if available
         dispatch({
           type: 'SET_CONVERSATIONS',
-          conversations: data.map((c) => {
-            const existing = state.conversations.find((prev) => prev.userId === c.userId);
-            return { ...c, isOnline: existing?.isOnline ?? false };
-          }),
+          conversations: data,
         });
       }
     } catch (e) {
       console.error('[AdminChat] fetch convos error', e);
     }
-  }, [state.conversations]);
+  }, []);
 
   const fetchHistory = useCallback(
     async (userId: string) => {

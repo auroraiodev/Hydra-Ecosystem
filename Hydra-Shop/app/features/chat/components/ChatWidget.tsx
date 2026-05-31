@@ -21,19 +21,6 @@ export function ChatWidget() {
   const [atQuery, setAtQuery] = useState<string | null>(null);
 
   const { user, isAuthenticated } = useAppSelector((s) => s.auth);
-  const { messages, sendMessage, isConnected, isAvailable, isLoading, unreadCount, clearUnread } =
-    useChatSocket(open);
-
-  const {
-    supported: pushSupported,
-    subscribed: pushSubscribed,
-    subscribe: pushSubscribe,
-    unsubscribe: pushUnsubscribe,
-    loading: pushLoading,
-  } = usePushNotifications();
-
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const messagesRef = useRef<HTMLDivElement>(null);
 
   // Fetch feature flag
   const { data: chatEnabled } = useQuery({
@@ -47,6 +34,23 @@ export function ChatWidget() {
     },
     staleTime: 5 * 60 * 1000,
   });
+
+  const envChatEnabled = process.env.NEXT_PUBLIC_CHAT_ENABLED === 'true';
+  const isChatActive = envChatEnabled && chatEnabled !== false;
+
+  const { messages, sendMessage, isConnected, isAvailable, isLoading, unreadCount, clearUnread } =
+    useChatSocket(open, isChatActive);
+
+  const {
+    supported: pushSupported,
+    subscribed: pushSubscribed,
+    subscribe: pushSubscribe,
+    unsubscribe: pushUnsubscribe,
+    loading: pushLoading,
+  } = usePushNotifications();
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -85,7 +89,7 @@ export function ChatWidget() {
     clearUnread();
   };
 
-  if (chatEnabled === false) return null;
+  if (!isChatActive) return null;
   if (isAuthenticated && !isAvailable) return null;
 
   const isFloatingBarPage = ['/cart', '/wishlist', '/checkout'].includes(pathname);

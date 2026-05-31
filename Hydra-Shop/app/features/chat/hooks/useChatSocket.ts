@@ -38,6 +38,9 @@ function playNotificationSound() {
 import { API_URL } from '@/lib/constants/api';
 
 function getWsUrl(): string {
+  const envChatUrl = process.env.NEXT_PUBLIC_CHAT_URL;
+  if (envChatUrl) return envChatUrl;
+
   if (typeof window === 'undefined') {
     return (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002').replace(/\/api$/, '');
   }
@@ -50,7 +53,7 @@ function getWsUrl(): string {
   const wsProtocol = protocol === 'https:' ? 'https:' : 'http:';
 
   if (hostname.endsWith('hydracollect.com')) {
-    return `${wsProtocol}//${hostname}`;
+    return `${wsProtocol}//chat.hydracollect.com`;
   }
 
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -104,7 +107,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
   }
 }
 
-export function useChatSocket(open: boolean): UseChatSocketReturn {
+export function useChatSocket(open: boolean, enabled = true): UseChatSocketReturn {
   const { token: reduxToken, isAuthenticated, user } = useAppSelector((s) => s.auth);
   const socketRef = useRef<Socket | null>(null);
   const [chatState, chatDispatch] = useReducer(chatReducer, {
@@ -130,6 +133,7 @@ export function useChatSocket(open: boolean): UseChatSocketReturn {
 
   // Load history from REST once per open session
   const loadHistory = useCallback(async () => {
+    if (!enabled) return;
     const token = getToken();
     if (!isAuthenticated || !token || historyLoadedRef.current) return;
     historyLoadedRef.current = true;
@@ -164,12 +168,12 @@ export function useChatSocket(open: boolean): UseChatSocketReturn {
     } finally {
       chatDispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, [isAuthenticated, getToken]);
+  }, [isAuthenticated, getToken, enabled]);
 
   // Connect/disconnect purely based on authentication
   // oxlint-disable-next-line react-doctor/effect-needs-cleanup
   useEffect(() => {
-    if (!isAuthenticated || !user) {
+    if (!enabled || !isAuthenticated || !user) {
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
@@ -277,14 +281,14 @@ export function useChatSocket(open: boolean): UseChatSocketReturn {
     };
     // Keep socket connected regardless of chat open state - only depends on auth
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, enabled]);
 
   // Load history when chat opens (only once per session)
   useEffect(() => {
-    if (open && isAuthenticated && !historyLoadedRef.current) {
+    if (enabled && open && isAuthenticated && !historyLoadedRef.current) {
       loadHistory();
     }
-  }, [open, isAuthenticated, loadHistory]);
+  }, [open, isAuthenticated, loadHistory, enabled]);
 
   const sendMessage = useCallback((content: string) => {
     const s = socketRef.current;

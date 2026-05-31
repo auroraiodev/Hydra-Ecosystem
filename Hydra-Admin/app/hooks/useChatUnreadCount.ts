@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 function getWsUrl(): string {
+  const envChatUrl = process.env.NEXT_PUBLIC_CHAT_URL;
+  if (envChatUrl) return envChatUrl;
+
   if (typeof window === 'undefined') {
     return (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002').replace(/\/api$/, '');
   }
@@ -16,7 +19,7 @@ function getWsUrl(): string {
   const wsProtocol = protocol === 'https:' ? 'https:' : 'http:';
 
   if (hostname.endsWith('hydracollect.com')) {
-    return `${wsProtocol}//${hostname}`;
+    return `${wsProtocol}//chat.hydracollect.com`;
   }
 
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
