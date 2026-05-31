@@ -7,6 +7,11 @@ import { createSuccessResponse } from '../interfaces/api-response.interface.js';
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
+    const response = context.switchToHttp().getResponse();
+
+    // Ensure all JSON responses are sent with UTF-8 charset to prevent
+    // accented characters (í, ó, á, é, ñ, etc.) from being garbled.
+    response.setHeader('Content-Type', 'application/json; charset=utf-8');
 
     return next.handle().pipe(
       map((data) => {

@@ -14,7 +14,9 @@ export class ErrorInterceptor implements NestInterceptor {
         // Handle the error and format the response
         if (error instanceof StandardError) {
           const errorResponse = createErrorResponse(error, request.apiVersion, request.requestId);
-          response.status(error.statusCode).json(errorResponse);
+          response.status(error.statusCode);
+          response.setHeader('Content-Type', 'application/json; charset=utf-8');
+          response.end(JSON.stringify(errorResponse));
         } else {
           // Let the global error handler middleware deal with other errors
           throw error;
