@@ -100,7 +100,7 @@ export default function ContactClient() {
                   <div>
                     <span className="text-xs uppercase tracking-widest font-black text-text-muted/60 block mb-0.5">Horarios de Atención</span>
                     <span className="text-sm font-medium text-text-body block">
-                      Lunes a Viernes: 9:00 AM - 6:00 PM
+                      Lunes a Domingo: 9:00 AM - 6:00 PM
                     </span>
                     <span className="text-xs text-text-muted/80">
                       (Hora del Centro de México)

@@ -2,6 +2,9 @@
 
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
+import { getActiveTcgs } from '@/features/tcg/api/getActiveTcgs';
+import type { TcgApiResponse } from '@/features/tcg/types';
 
 const Footer = dynamic(() => import('./Footer').then((mod) => mod.Footer), {
   ssr: true,
@@ -9,16 +12,18 @@ const Footer = dynamic(() => import('./Footer').then((mod) => mod.Footer), {
 
 export function SharedFooter() {
   const pathname = usePathname();
+  const [tcgCategories, setTcgCategories] = useState<TcgApiResponse[]>([]);
+
+  useEffect(() => {
+    getActiveTcgs().then((tcgs) => setTcgCategories(tcgs));
+  }, []);
 
   // Don't show footer on login and signup pages
-  // Also hidden on admin dashboard if that route follows a specific pattern (optional)
   const hideFooter = pathname === '/login' || pathname === '/signup';
 
   if (hideFooter) {
     return null;
   }
 
-  // Footer is visible on both mobile and desktop (unlike the desktop-only navbar)
-  // We wrap it to match the structure if needed, or simply render it
-  return <Footer />;
+  return <Footer tcgCategories={tcgCategories} />;
 }

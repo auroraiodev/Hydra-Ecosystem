@@ -5,15 +5,27 @@ import { FooterBrand } from './FooterBrand';
 import { FooterColumn } from './FooterColumn';
 import {
   FOOTER_SHOP_LINKS,
-  FOOTER_CATEGORY_LINKS,
   FOOTER_SUPPORT_LINKS,
   FOOTER_LEGAL_LINKS,
 } from '../constants';
+import type { TcgApiResponse } from '@/features/tcg/types';
 
-export function Footer() {
+interface FooterProps {
+  tcgCategories?: TcgApiResponse[];
+}
+
+export function Footer({ tcgCategories = [] }: FooterProps) {
   const currentYear = new Date().getFullYear();
   const { settings } = usePublicSettings();
   const siteName = settings.site_name || 'Hydra Collectables';
+
+  const tcgCategoryLinks = tcgCategories
+    .filter((tcg) => tcg.isActive)
+    .sort((a, b) => a.order - b.order)
+    .map((tcg) => ({
+      label: tcg.displayName,
+      href: `/${tcg.slug}`,
+    }));
 
   return (
     <footer className="bg-vault-surface-low border-t border-white/5 pt-16 pb-8 relative overflow-hidden">
@@ -21,7 +33,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
           <FooterBrand siteName={siteName} siteLogo={settings.site_logo} />
           <FooterColumn title="Comprar" links={FOOTER_SHOP_LINKS} />
-          <FooterColumn title="Categorías" links={FOOTER_CATEGORY_LINKS} />
+          <FooterColumn title="Categorías" links={tcgCategoryLinks} />
           <FooterColumn title="Soporte" links={FOOTER_SUPPORT_LINKS} />
           <FooterColumn title="Legal" links={FOOTER_LEGAL_LINKS} />
         </div>

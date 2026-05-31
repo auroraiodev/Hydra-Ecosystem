@@ -16,9 +16,9 @@ export const BOTTOM_NAV_ITEMS = [
 
 export const FOOTER_SHOP_LINKS = [
   { label: 'Singles', href: '/singles' },
-  { label: 'Sellados', href: '/sealed' },
-  { label: 'Accesorios', href: '/accessories' },
-  { label: 'Novedades', href: '/new-arrivals' },
+  { label: 'Decks / Mazos', href: '/decks/search' },
+  { label: 'Bundles', href: '/bundles/search' },
+  { label: 'Micas y Protectores', href: '/micas/search' },
 ];
 
 export const FOOTER_CATEGORY_LINKS = [
