@@ -21,6 +21,8 @@ ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_BACKEND_API_URL
 ARG NEXT_PUBLIC_AUTH_SERVICE_URL
 ARG NEXT_PUBLIC_APP_URL
+# Hydtra-Chat service URL (injected at build-time; Coolify must pass this)
+ARG CHAT_SERVICE_URL=http://hydra-chat:3007
 
 ENV NEXT_PUBLIC_ADMIN_URL=$NEXT_PUBLIC_ADMIN_URL \
     NEXT_PUBLIC_FRONTEND_URL=$NEXT_PUBLIC_FRONTEND_URL \
@@ -28,7 +30,8 @@ ENV NEXT_PUBLIC_ADMIN_URL=$NEXT_PUBLIC_ADMIN_URL \
     NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_BACKEND_API_URL=$NEXT_PUBLIC_BACKEND_API_URL \
     NEXT_PUBLIC_AUTH_SERVICE_URL=$NEXT_PUBLIC_AUTH_SERVICE_URL \
-    NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+    NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
+    CHAT_SERVICE_URL=$CHAT_SERVICE_URL
 
 # ── 1. Frontend deps (cached layer) ──────────────────────────────────────────
 COPY app/package.json app/bun.lock* ./app/

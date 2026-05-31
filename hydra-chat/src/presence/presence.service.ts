@@ -73,4 +73,62 @@ export class PresenceService {
   async unblockUser(userId: string) {
     await this.prisma.blocked_users.delete({ where: { user_id: userId } }).catch(() => {});
   }
+
+  // --- Admin presence page queries ---
+
+  async getOnlineFromDb(cutoff: Date) {
+    return this.prisma.user_sessions.findMany({
+      where: { last_seen: { gte: cutoff } },
+      include: {
+        users: {
+          select: {
+            id: true, first_name: true, last_name: true, email: true,
+            username: true, avatar_url: true, roles: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: { last_seen: 'desc' },
+    });
+  }
+
+  async getHistoryFromDb(where: Record<string, unknown>, take: number, skip: number) {
+    return this.prisma.user_page_visits.findMany({
+      where,
+      include: {
+        users: {
+          select: {
+            id: true, first_name: true, last_name: true, email: true,
+            username: true, avatar_url: true, roles: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: { visited_at: 'desc' },
+      take,
+      skip,
+    });
+  }
+
+  async countHistory(where: Record<string, unknown>) {
+    return this.prisma.user_page_visits.count({ where });
+  }
+
+  async getBlockedIpsFromDb() {
+    return this.prisma.blocked_ips.findMany({
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
+  async getBlockedUsersFromDb() {
+    return this.prisma.blocked_users.findMany({
+      include: {
+        users: {
+          select: {
+            id: true, first_name: true, last_name: true, email: true,
+            username: true, avatar_url: true,
+          },
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+  }
 }
