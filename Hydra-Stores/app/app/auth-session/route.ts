@@ -83,10 +83,11 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    const dbUser = await profileRes.json();
+    const result = await profileRes.json();
+    const dbUser = result?.data !== undefined ? result.data : result;
 
     // 3. Verify role authorization (must be SELLER or ADMIN in database)
-    const role = dbUser.role?.name?.toUpperCase();
+    const role = dbUser?.role?.name?.toUpperCase() || dbUser?.role?.toUpperCase();
     if (role !== 'SELLER' && role !== 'ADMIN') {
       console.warn('[Session API] Unauthorized database role:', role);
       const response = NextResponse.json(

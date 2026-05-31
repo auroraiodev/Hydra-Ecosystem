@@ -264,7 +264,7 @@ export class AdminService {
       SELECT
         s.id,
         s.card_name as name,
-        s.expansion,
+        s.set as expansion,
         COALESCE(SUM(oi.quantity), 0)::bigint AS units_sold,
         COALESCE(SUM(oi.unit_price * oi.quantity), 0)::text AS revenue
       FROM order_items oi
@@ -273,7 +273,7 @@ export class AdminService {
       WHERE o.status IN ('PAID', 'PROCESSING', 'SHIPPED', 'COMPLETED')
         ${startDate ? Prisma.sql`AND o.created_at >= ${startDate}` : Prisma.empty}
         ${endDate ? Prisma.sql`AND o.created_at < ${endDate}` : Prisma.empty}
-      GROUP BY s.id, s.card_name, s.expansion
+      GROUP BY s.id, s.card_name, s.set
       ORDER BY units_sold DESC
       LIMIT ${limit}
     `;
