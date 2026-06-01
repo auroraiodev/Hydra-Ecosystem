@@ -84,37 +84,9 @@ export async function GET(request: NextRequest) {
     const redirectUrl = new URL(`/dashboard?${redirectParams.toString()}`, baseUrl);
     const response = NextResponse.redirect(redirectUrl);
 
-    // Set encrypted JWT cookie
-    if (authData.accessToken) {
-      response.cookies.set(COOKIE_NAME, encryptCookie(authData.accessToken), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-      });
-
-      // Set plaintext role cookie for Edge middleware redirects
-      if (userRole) {
-        response.cookies.set('__role', userRole.toUpperCase(), {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          path: '/',
-          maxAge: 7 * 24 * 60 * 60, // 7 days
-        });
-      }
-    }
-
-    if (authData.refreshToken) {
-      response.cookies.set('refresh-token', authData.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-      });
-    }
+    // DO NOT touch __sid cookie here — backend already set it as httpOnly raw JWT.
+    // We only set refresh-token and __role (no sensitive data).
+    setUserCookies(response, authData);
 
     return response;
   } catch (error) {
@@ -127,8 +99,42 @@ export async function GET(request: NextRequest) {
 }
 
 function copyAuthCookies(authResponse: Response, response: NextResponse) {
-  const setCookie = authResponse.headers.get('set-cookie');
-  if (setCookie) {
-    response.headers.set('set-cookie', setCookie);
+  // headers.getSetCookie() returns ALL Set-Cookie headers as an array
+  // (unlike .get() which only returns the last one). This preserves both
+  // __sid and refresh-token from the backend.
+  const setCookies = authResponse.headers.getSetCookie();
+  for (const cookie of setCookies) {
+    response.headers.append('set-cookie', cookie);
+  }
+}
+
+function setUserCookies(response: NextResponse, authData: {
+  accessToken?: string;
+  refreshToken?: string;
+  user?: { role?: { name?: string } | string };
+}) {
+  // DO NOT encrypt and re-set __sid — the backend already set it as httpOnly raw JWT.
+  // Re-setting it as encrypted would override the valid raw JWT and cause 401s.
+  if (authData.refreshToken) {
+    response.cookies.set('refresh-token', authData.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    });
+  }
+
+  // Plain role cookie — no sensitive data, readable by Edge middleware for redirects.
+  const userRole = authData.user?.role;
+  const roleName = typeof userRole === 'string' ? userRole : userRole?.name;
+  if (roleName) {
+    response.cookies.set('__role', roleName.toUpperCase(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60,
+    });
   }
 }

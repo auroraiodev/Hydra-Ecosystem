@@ -151,12 +151,7 @@ describe('PaymentsService', () => {
 
       prisma.payments.update.mockResolvedValue(mockPayment);
 
-      const result = await service.updatePayment(
-        paymentId,
-        mercadopagoPaymentId,
-        paymentData,
-        status,
-      );
+      const result = await service.updatePayment(paymentId, mercadopagoPaymentId, paymentData, status);
 
       expect(prisma.payments.update).toHaveBeenCalledWith({
         where: { id: paymentId },
@@ -167,6 +162,88 @@ describe('PaymentsService', () => {
         },
       });
       expect(result).toBe(mockPayment);
+    });
+
+    it('should extract and store transaction_amount at top level of payment_data', async () => {
+      const paymentId = 'payment123';
+      const mercadopagoPaymentId = 'mp123';
+      // MP API response with transaction_amount nested inside
+      const paymentData = {
+        id: 123456,
+        status: 'approved',
+        transaction_amount: 2211.28,
+        transactionDetails: { totalAmount: 2211.28 },
+        external_reference: 'order-abc',
+        preference_id: 'pref-xyz',
+      };
+      const status = 'approved';
+      const mockPayment = { id: paymentId, status };
+
+      prisma.payments.update.mockResolvedValue(mockPayment);
+
+      await service.updatePayment(paymentId, mercadopagoPaymentId, paymentData, status);
+
+      // Verify transaction_amount is extracted and stored at top level
+      expect(prisma.payments.update).toHaveBeenCalledWith({
+        where: { id: paymentId },
+        data: expect.objectContaining({
+          mercadopago_payment_id: mercadopagoPaymentId,
+          status,
+          payment_data: expect.objectContaining({
+            id: 123456,
+            status: 'approved',
+            transaction_amount: 2211.28,
+            transactionDetails: { totalAmount: 2211.28 },
+            external_reference: 'order-abc',
+            preference_id: 'pref-xyz',
+          }),
+        }),
+      });
+    });
+
+    it('should handle transaction_amount from transactionDetails.totalAmount fallback', async () => {
+      const paymentId = 'payment123';
+      const mercadopagoPaymentId = 'mp123';
+      // MP response where transaction_amount is missing but transactionDetails.totalAmount exists
+      const paymentData = {
+        id: 789,
+        status: 'approved',
+        transactionDetails: { totalAmount: 1500.5 },
+      };
+      const status = 'approved';
+
+      prisma.payments.update.mockResolvedValue({ id: paymentId });
+
+      await service.updatePayment(paymentId, mercadopagoPaymentId, paymentData, status);
+
+      expect(prisma.payments.update).toHaveBeenCalledWith({
+        where: { id: paymentId },
+        data: expect.objectContaining({
+          payment_data: expect.objectContaining({
+            transaction_amount: 1500.5,
+          }),
+        }),
+      });
+    });
+
+    it('should set transaction_amount to null when not present in paymentData', async () => {
+      const paymentId = 'payment123';
+      const mercadopagoPaymentId = 'mp123';
+      const paymentData = { status: 'pending' }; // no transaction_amount field
+      const status = 'pending';
+
+      prisma.payments.update.mockResolvedValue({ id: paymentId });
+
+      await service.updatePayment(paymentId, mercadopagoPaymentId, paymentData, status);
+
+      expect(prisma.payments.update).toHaveBeenCalledWith({
+        where: { id: paymentId },
+        data: expect.objectContaining({
+          payment_data: expect.objectContaining({
+            transaction_amount: null,
+          }),
+        }),
+      });
     });
   });
 

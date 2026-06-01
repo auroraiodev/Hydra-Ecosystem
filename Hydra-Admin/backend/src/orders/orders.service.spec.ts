@@ -592,4 +592,170 @@ describe('OrdersService', () => {
       expect(result.remainingToPay).toBe('350.00');
     });
   });
-});
+
+  describe('getOrderPaymentBalance', () => {
+    const baseOrder = {
+      id: 'order-1',
+      user_id: 'user-1',
+      status: 'PAID',
+      items: [],
+      importation_items: [],
+      shipping: null,
+      payments: [],
+    };
+
+    it('should read transaction_amount from payment_data for mercadopago', async () => {
+      // The fix: updatePayment stores transaction_amount at top level of payment_data
+      mockPrisma.orders.findUnique.mockResolvedValueOnce({
+        ...baseOrder,
+        items: [{ id: 'item-1', quantity: 1, unit_price: '100.00' }],
+        importation_items: [],
+        payments: [
+          {
+            id: 'pay-1',
+            payment_method: 'mercadopago',
+            mercadopago_payment_id: 'mp-123',
+            status: 'approved',
+            payment_data: {
+              id: 123456,
+              transaction_amount: 2211.28,
+              transactionDetails: { totalAmount: 2211.28 },
+            },
+          },
+        ],
+      });
+      mockPrisma.payments.findMany.mockResolvedValue([]);
+
+      const result = await service.getOrderPaymentBalance('order-1');
+
+      expect(result.paidAmount).toBe(2211.28);
+      expect(result.difference).toBeLessThan(0.5);
+    });
+
+    it('should detect needsSupplementalPayment when transaction_amount < currentTotal', async () => {
+      mockPrisma.orders.findUnique.mockResolvedValueOnce({
+        ...baseOrder,
+        items: [{ id: 'item-1', quantity: 1, unit_price: '3000.00' }],
+        importation_items: [],
+        payments: [
+          {
+            id: 'pay-1',
+            payment_method: 'mercadopago',
+            mercadopago_payment_id: 'mp-123',
+            status: 'approved',
+            payment_data: {
+              transaction_amount: 2211.28, // customer paid less than order total
+            },
+          },
+        ],
+      });
+      mockPrisma.payments.findMany.mockResolvedValue([]);
+
+      const result = await service.getOrderPaymentBalance('order-1');
+
+      expect(result.paidAmount).toBe(2211.28);
+      expect(result.currentTotal).toBe(3000);
+      expect(result.difference).toBeCloseTo(788.72, 2);
+      expect(result.needsSupplementalPayment).toBe(true);
+    });
+
+    it('should return paidAmount=currentTotal for wallet payment (exact payment)', async () => {
+      mockPrisma.orders.findUnique.mockResolvedValueOnce({
+        ...baseOrder,
+        items: [{ id: 'item-1', quantity: 1, unit_price: '500.00' }],
+        importation_items: [],
+        payments: [
+          {
+            id: 'pay-1',
+            payment_method: 'wallet',
+            mercadopago_payment_id: null,
+            status: 'approved',
+            payment_data: null,
+          },
+        ],
+      });
+      mockPrisma.payments.findMany.mockResolvedValue([]);
+
+      const result = await service.getOrderPaymentBalance('order-1');
+
+      expect(result.paidAmount).toBe(500);
+      expect(result.needsSupplementalPayment).toBe(false);
+    });
+  });
+
+  describe('finalizePaidOrder', () => {
+    it('should set status to SHIPPED for envio shipping method', async () => {
+      const mockTx = {
+        orders: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'order-1',
+            user_id: 'user-1',
+            items: [],
+            importation_items: [],
+            shipping: { shipping_methods: { name: 'envio' } },
+          }),
+          update: jest.fn(),
+        },
+        order_items: { deleteMany: jest.fn() },
+        cart_items: { deleteMany: jest.fn() },
+        carts: { findUnique: jest.fn().mockResolvedValue(null) },
+      };
+
+      await (service as any).finalizePaidOrder('order-1', mockTx);
+
+      expect(mockTx.orders.update).toHaveBeenCalledWith({
+        where: { id: 'order-1' },
+        data: { status: 'SHIPPED' },
+      });
+    });
+
+    it('should set status to PAID for pickup shipping method', async () => {
+      const mockTx = {
+        orders: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'order-1',
+            user_id: 'user-1',
+            items: [],
+            importation_items: [],
+            shipping: { shipping_methods: { name: 'pickup' } },
+          }),
+          update: jest.fn(),
+        },
+        order_items: { deleteMany: jest.fn() },
+        cart_items: { deleteMany: jest.fn() },
+        carts: { findUnique: jest.fn().mockResolvedValue(null) },
+      };
+
+      await (service as any).finalizePaidOrder('order-1', mockTx);
+
+      expect(mockTx.orders.update).toHaveBeenCalledWith({
+        where: { id: 'order-1' },
+        data: { status: 'PAID' },
+      });
+    });
+
+    it('should set status to SHIPPED for SHIPPING method name', async () => {
+      const mockTx = {
+        orders: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'order-1',
+            user_id: 'user-1',
+            items: [],
+            importation_items: [],
+            shipping: { shipping_methods: { name: 'SHIPPING' } },
+          }),
+          update: jest.fn(),
+        },
+        order_items: { deleteMany: jest.fn() },
+        cart_items: { deleteMany: jest.fn() },
+        carts: { findUnique: jest.fn().mockResolvedValue(null) },
+      };
+
+      await (service as any).finalizePaidOrder('order-1', mockTx);
+
+      expect(mockTx.orders.update).toHaveBeenCalledWith({
+        where: { id: 'order-1' },
+        data: { status: 'SHIPPED' },
+      });
+    });
+  });

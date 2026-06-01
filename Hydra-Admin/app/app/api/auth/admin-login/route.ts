@@ -1,6 +1,4 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from '@/lib/parse-expiry';
-import { encryptCookie, COOKIE_NAME } from '@/lib/cookie-crypto';
 import { BACKEND_BASE_URL } from '@/lib/api-config';
 
 export async function POST(request: NextRequest) {
