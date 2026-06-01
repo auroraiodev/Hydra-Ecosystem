@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { navigateAndWait, setMobileViewport } from './helpers';
+import { navigateAndWait } from './helpers';
 
 test.use({ viewport: { width: 390, height: 844 } });
 
@@ -12,7 +12,7 @@ test.describe('Mobile Navigation - Header', () => {
 
   test('mobile header is visible on 390px viewport', async ({ page }) => {
     // Mobile header is the `lg:hidden` container; verify it's in the DOM
-    const mobileHeader = page.locator(
+    const _mobileHeader = page.locator(
       '.lg\\:hidden header, div.lg\\:hidden, [class*="MobileHeader"]',
     );
     // At minimum the hamburger button should be visible

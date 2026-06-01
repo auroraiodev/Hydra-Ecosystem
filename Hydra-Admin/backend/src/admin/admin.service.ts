@@ -228,9 +228,7 @@ export class AdminService {
   }
 
   async unblockIp(ip: string) {
-    await this.prismaService.blocked_ips
-      .delete({ where: { ip_address: ip } })
-      .catch(() => {});
+    await this.prismaService.blocked_ips.delete({ where: { ip_address: ip } }).catch(() => {});
   }
 
   async getBlockedIps() {
@@ -246,9 +244,7 @@ export class AdminService {
   }
 
   async unblockUser(userId: string) {
-    await this.prismaService.blocked_users
-      .delete({ where: { user_id: userId } })
-      .catch(() => {});
+    await this.prismaService.blocked_users.delete({ where: { user_id: userId } }).catch(() => {});
   }
 
   async getBlockedUsers() {

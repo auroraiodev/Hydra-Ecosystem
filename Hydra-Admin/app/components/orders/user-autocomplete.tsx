@@ -113,22 +113,16 @@ export function UserAutocomplete({
   }, [debouncedSearch, pendingOrdersOnly]);
 
   React.useEffect(() => {
-    if (value && value !== selectedUser?.id) {
-      const fetchSelectedUser = async () => {
-        try {
-          const user = await usersAPI.get(value);
-          if (user) {
-            dispatch({ type: 'SET_SELECTED_USER', user });
-          }
-        } catch (error) {
-          console.error('Failed to fetch selected user:', error);
-        }
-      };
-      fetchSelectedUser();
-    } else if (!value && selectedUser) {
+    if (value) {
+      usersAPI.get(value).then((user) => {
+        if (user) dispatch({ type: 'SET_SELECTED_USER', user });
+      }).catch((error) => {
+        console.error('Failed to fetch selected user:', error);
+      });
+    } else {
       dispatch({ type: 'SET_SELECTED_USER', user: null });
     }
-  }, [value, selectedUser?.id]);
+  }, [value]);
 
   return (
     <div className="flex items-center gap-2">

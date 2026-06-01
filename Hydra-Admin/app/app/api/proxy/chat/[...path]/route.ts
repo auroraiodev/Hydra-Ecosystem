@@ -50,9 +50,9 @@ async function proxyRequest(request: NextRequest, params: { path: string[] }): P
     });
 
     return new NextResponse(responseBody, { status: response.status, headers: resHeaders });
-  } catch (error: any) {
+  } catch (error: unknown) {
     clearTimeout(timeout);
-    return NextResponse.json({ success: false, error: 'Chat service unreachable', message: error?.message }, { status: 502 });
+    return NextResponse.json({ success: false, error: 'Chat service unreachable', message: error instanceof Error ? error.message : 'Unknown error' }, { status: 502 });
   }
 }
 

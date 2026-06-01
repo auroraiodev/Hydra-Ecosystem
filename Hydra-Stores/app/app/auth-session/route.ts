@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
   try {
     const raw = request.cookies.get(COOKIE_NAME)?.value;
     let token = raw ? decryptCookie(raw) : null;
-    let payload: any = null;
+    let payload: Record<string, unknown> | null = null;
 
     if (token) {
       const parts = token.split('.');
@@ -90,7 +90,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const isExpired = payload?.exp && (Date.now() >= payload.exp * 1000);
+    const exp = typeof payload?.exp === 'number' ? payload.exp : 0;
+    const isExpired = exp > 0 && Math.floor(Date.now() / 1000) >= exp;
     let dbUser: any = null;
 
     if (token && payload && !isExpired) {

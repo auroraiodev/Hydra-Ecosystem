@@ -1,20 +1,21 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import Groq from 'groq-sdk';
-import { ChatService } from './chat.service.js';
-import { SearchClientService } from '../search/search-client.service.js';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import Groq from "groq-sdk";
+import { ChatService } from "./chat.service.js";
+import { SearchClientService } from "../search/search-client.service.js";
 
 const SEARCH_TOOL: Groq.Chat.ChatCompletionTool = {
-  type: 'function',
+  type: "function",
   function: {
-    name: 'search_cards',
-    description: 'Search for Magic: The Gathering cards in the Hydra Collectables inventory.',
+    name: "search_cards",
+    description:
+      "Search for Magic: The Gathering cards in the Hydra Collectables inventory.",
     parameters: {
-      type: 'object',
+      type: "object",
       properties: {
-        query: { type: 'string', description: 'Card name to search for' },
+        query: { type: "string", description: "Card name to search for" },
       },
-      required: ['query'],
+      required: ["query"],
     },
   },
 };
@@ -31,16 +32,18 @@ export class AiBotService {
     private readonly chatService: ChatService,
     private readonly searchService: SearchClientService,
   ) {
-    const apiKey = this.configService.get<string>('GROQ_API_KEY');
+    const apiKey = this.configService.get<string>("GROQ_API_KEY");
     if (!apiKey) {
-      this.logger.warn('GROQ_API_KEY not set — AI bot disabled');
+      this.logger.warn("GROQ_API_KEY not set — AI bot disabled");
       this.enabled = false;
       return;
     }
     this.enabled = true;
     this.groq = new Groq({ apiKey });
-    this.frontendUrl = (this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000')
-      .split(',')[0]
+    this.frontendUrl = (
+      this.configService.get<string>("FRONTEND_URL") || "http://localhost:3000"
+    )
+      .split(",")[0]
       .trim();
   }
 
@@ -56,19 +59,20 @@ export class AiBotService {
       const prior = history.slice(0, -1);
 
       const messages: Groq.Chat.ChatCompletionMessageParam[] = [
-        { role: 'system' as const, content: this.systemPrompt() },
+        { role: "system" as const, content: this.systemPrompt() },
         ...prior.map((msg) => ({
-          role: msg.sender === 'user' ? ('user' as const) : ('assistant' as const),
+          role:
+            msg.sender === "user" ? ("user" as const) : ("assistant" as const),
           content: msg.content,
         })),
-        { role: 'user' as const, content: userMessage },
+        { role: "user" as const, content: userMessage },
       ];
 
       const response = await this.groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
+        model: "llama-3.3-70b-versatile",
         messages,
         tools: [SEARCH_TOOL],
-        tool_choice: 'auto',
+        tool_choice: "auto",
         max_tokens: 512,
         temperature: 0.4,
       });
@@ -83,28 +87,36 @@ export class AiBotService {
         const results = await this.searchService.searchHybrid(args.query, 1, 6);
         const items = results.data.slice(0, 6).map((item: any) => ({
           name: item.cardName || item.name,
-          expansion: item.expansion || item.variant || '',
+          expansion: item.expansion || item.variant || "",
           price: item.price ?? item.finalPrice,
           stock: item.stock ?? null,
-          condition: item.condition || '',
-          language: item.language || '',
+          condition: item.condition || "",
+          language: item.language || "",
           foil: item.foil ?? false,
           isLocal: item.isLocalInventory ?? false,
-          tcgId: item.tcg_id || item.tcgId || '',
+          tcgId: item.tcg_id || item.tcgId || "",
         }));
 
         const firstTcgId = items[0]?.tcgId;
-        const searchUrl = `${this.frontendUrl}/search?query=${encodeURIComponent(args.query)}${firstTcgId ? `&tcgId=${firstTcgId}` : ''}`;
+        const searchUrl = `${this.frontendUrl}/search?query=${encodeURIComponent(args.query)}${firstTcgId ? `&tcgId=${firstTcgId}` : ""}`;
 
         const followUp = await this.groq.chat.completions.create({
-          model: 'llama-3.3-70b-versatile',
+          model: "llama-3.3-70b-versatile",
           messages: [
             ...messages,
-            { role: 'assistant' as const, content: null, tool_calls: choice.message.tool_calls },
             {
-              role: 'tool' as const,
+              role: "assistant" as const,
+              content: null,
+              tool_calls: choice.message.tool_calls,
+            },
+            {
+              role: "tool" as const,
               tool_call_id: call.id,
-              content: JSON.stringify({ found: items.length > 0, results: items, searchUrl }),
+              content: JSON.stringify({
+                found: items.length > 0,
+                results: items,
+                searchUrl,
+              }),
             },
           ],
           max_tokens: 512,
@@ -117,10 +129,10 @@ export class AiBotService {
       return choice.message.content ?? null;
     } catch (err) {
       if (err?.status === 429) {
-        this.logger.warn('AI bot quota exceeded (429)');
-        return 'En este momento el asistente automático no está disponible. Un agente de soporte te atenderá pronto.';
+        this.logger.warn("AI bot quota exceeded (429)");
+        return "En este momento el asistente automático no está disponible. Un agente de soporte te atenderá pronto.";
       }
-      this.logger.error('AI bot error:', err);
+      this.logger.error("AI bot error:", err);
       return null;
     }
   }

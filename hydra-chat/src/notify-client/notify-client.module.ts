@@ -1,6 +1,6 @@
-import { Global, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { NotifyClientService } from './notify-client.service.js';
+import { Global, Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { NotifyClientService } from "./notify-client.service.js";
 
 @Global()
 @Module({

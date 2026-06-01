@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Mail,
-  Phone,
   Clock,
   Send,
   CheckCircle2,

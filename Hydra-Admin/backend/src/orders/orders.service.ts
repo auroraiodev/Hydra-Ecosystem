@@ -45,12 +45,14 @@ export class OrdersService {
    */
   calculateLocalItemUnitPrice(single: any): number {
     const MTG_TCG_ID = 'bd789d3f-5569-4971-890e-e261e145e42c';
-    const priceMxnLocal = single.priceMxnLocal !== null && single.priceMxnLocal !== undefined
-      ? Number(single.priceMxnLocal)
-      : null;
-    const priceMxnImportation = single.priceMxnImportation !== null && single.priceMxnImportation !== undefined
-      ? Number(single.priceMxnImportation)
-      : null;
+    const priceMxnLocal =
+      single.priceMxnLocal !== null && single.priceMxnLocal !== undefined
+        ? Number(single.priceMxnLocal)
+        : null;
+    const priceMxnImportation =
+      single.priceMxnImportation !== null && single.priceMxnImportation !== undefined
+        ? Number(single.priceMxnImportation)
+        : null;
 
     const basePrice = Number(single.price);
     const discountPercent = single.conditions?.discount || 0;
@@ -1277,7 +1279,15 @@ export class OrdersService {
   /**
    * Get all orders (Admin/Seller)
    */
-  async getAllOrders(page = 1, limit = 10, search?: string, status?: string, userId?: string, sortBy?: string, sortDir: 'asc' | 'desc' = 'desc') {
+  async getAllOrders(
+    page = 1,
+    limit = 10,
+    search?: string,
+    status?: string,
+    userId?: string,
+    sortBy?: string,
+    sortDir: 'asc' | 'desc' = 'desc',
+  ) {
     this.logger.log(
       `getAllOrders: Fetching all orders (page: ${page}, limit: ${limit}, search: ${search}, status: ${status}, userId: ${userId})...`,
     );

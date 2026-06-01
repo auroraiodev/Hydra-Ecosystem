@@ -173,8 +173,8 @@ export class CartService {
         // Never spread raw.product_data — even after sanitization, spreading a
         // user-originated object involves dynamic property access that static
         // analyzers correctly flag as prototype-pollution risk.
-        const pd = (raw.product_data ?? {}) as Record<string, unknown>;
-        const freshProductData: Record<string, unknown> = {
+        const pd = (raw.product_data ?? {}) as Record<string, any>;
+        const freshProductData: Record<string, any> = {
           name: pd.name,
           cardName: pd.cardName,
           importationId: pd.importationId,
@@ -199,7 +199,7 @@ export class CartService {
         updates.push(
           this.prisma.cart_items.update({
             where: { id: raw.id },
-            data: { unit_price: unitPrice, product_data: freshProductData as object },
+            data: { unit_price: unitPrice, product_data: freshProductData },
           }),
         );
         // Update in-memory productData so the current response reflects the correct price
@@ -506,8 +506,7 @@ export class CartService {
       (storedData.name as string) ||
       (storedData.title as string) ||
       '';
-    const isFoil =
-      storedData.foil === true || storedData.foil === 'true' || storedData.foil === 1;
+    const isFoil = storedData.foil === true || storedData.foil === 'true' || storedData.foil === 1;
     const language = (storedData.language as string) || 'Inglés';
 
     let freshPricing: any = null;
@@ -520,7 +519,9 @@ export class CartService {
           language,
         });
       } catch (err) {
-        this.logger.warn(`[Cart] findVariant failed for ${importationId}: ${(err as Error).message}`);
+        this.logger.warn(
+          `[Cart] findVariant failed for ${importationId}: ${(err as Error).message}`,
+        );
       }
     }
 
@@ -629,7 +630,7 @@ export class CartService {
             cleanTransformed.basePriceMXN ||
             discountedPrice ||
             0
-          : cleanTransformed.price_mxn_local ?? discountedPrice ??0;
+          : (cleanTransformed.price_mxn_local ?? discountedPrice ?? 0);
       } else {
         selectedPrice = cleanTransformed.price_mxn_local || discountedPrice || 0;
       }
@@ -670,8 +671,8 @@ export class CartService {
     return {
       name,
       cardName: name,
-      importationId: (productData.importationId as string) || '',
-      language: (productData.language as string) || 'Inglés',
+      importationId: productData.importationId || '',
+      language: productData.language || 'Inglés',
       foil,
       isFoil: productData.isFoil,
       category: productData.category,

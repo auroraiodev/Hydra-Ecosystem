@@ -151,7 +151,12 @@ describe('PaymentsService', () => {
 
       prisma.payments.update.mockResolvedValue(mockPayment);
 
-      const result = await service.updatePayment(paymentId, mercadopagoPaymentId, paymentData, status);
+      const result = await service.updatePayment(
+        paymentId,
+        mercadopagoPaymentId,
+        paymentData,
+        status,
+      );
 
       expect(prisma.payments.update).toHaveBeenCalledWith({
         where: { id: paymentId },

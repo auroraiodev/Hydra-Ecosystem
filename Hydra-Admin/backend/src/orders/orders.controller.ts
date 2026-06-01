@@ -54,8 +54,13 @@ export class OrdersController {
   ) {
     if ((user.role.name === 'ADMIN' || user.role.name === 'SELLER') && mode === 'admin') {
       return this.ordersService.getAllOrders(
-        Number(page), Number(limit), search, status, userId,
-        sortBy, (sortDir === 'asc' ? 'asc' : 'desc'),
+        Number(page),
+        Number(limit),
+        search,
+        status,
+        userId,
+        sortBy,
+        sortDir === 'asc' ? 'asc' : 'desc',
       );
     }
     return this.ordersService.getUserOrders(user.id);

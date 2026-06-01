@@ -245,7 +245,10 @@ export class ImportationService {
     if (!url.startsWith('http') && !url.startsWith('/')) {
       clean = `https://www.importationmtg.com/${url}`;
     }
-    const forbiddenDomain = Buffer.from('aHR0cHM6Ly9maWxlcy5oYXJlcnV5YW10Zy5jb20v', 'base64').toString('utf8');
+    const forbiddenDomain = Buffer.from(
+      'aHR0cHM6Ly9maWxlcy5oYXJlcnV5YW10Zy5jb20v',
+      'base64',
+    ).toString('utf8');
     return clean.replace(forbiddenDomain, '/api/images/external?path=');
   }
 

@@ -22,10 +22,7 @@ export class EmailService {
   private enabled: boolean;
 
   constructor(private configService: ConfigService) {
-    this.adminEmail = this.configService.get<string>(
-      'EMAIL_ADMIN',
-      'contacto@hydracollect.com',
-    );
+    this.adminEmail = this.configService.get<string>('EMAIL_ADMIN', 'contacto@hydracollect.com');
     this.fromAddress = this.configService.get<string>(
       'EMAIL_FROM',
       '"Hydra TCG" <noreply@hydracollect.com>',

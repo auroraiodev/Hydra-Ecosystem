@@ -1,5 +1,5 @@
 import './dom-setup';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import OrderDetailsPage from '../app/(dashboard)/dashboard/orders/[id]/page';
 import { ordersAPI } from '../lib/api';
@@ -34,7 +34,7 @@ vi.mock('next/navigation', () => ({
 
 // Fallback for vi.mocked in environments that do not define it (like bun test)
 if (!vi.mocked) {
-  (vi as any).mocked = (fn: any) => fn;
+  (vi as unknown as { mocked: <T>(fn: T) => T }).mocked = (fn) => fn;
 }
 
 // Mock subcomponents to isolate the test of OrderDetailsPage
@@ -57,7 +57,7 @@ describe('OrderDetailsPage - Auto-marking Sold Logic', () => {
     status: 'fulfilled',
     value: { id: 'test-order-id' },
     then: () => {},
-  } as any;
+  } as Promise<{ id: string }>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -68,7 +68,7 @@ describe('OrderDetailsPage - Auto-marking Sold Logic', () => {
 
   it('automatically marks pending local inventory items as sold when Mercado Pago payment is approved', async () => {
     // Mock get response showing an approved Mercado Pago order with a pending local item
-    ordersAPI.get = vi.fn(() => Promise.resolve({
+    ordersAPI.get = vi.fn().mockResolvedValue({
       id: 'test-order-id',
       order_number: 'ORD-100',
       status: 'PAID',
@@ -93,7 +93,7 @@ describe('OrderDetailsPage - Auto-marking Sold Logic', () => {
           },
         },
       ],
-    })) as any;
+    });
 
     ordersAPI.updateItemDeliveryStatus = vi.fn(() => Promise.resolve({ success: true }));
 
@@ -111,7 +111,7 @@ describe('OrderDetailsPage - Auto-marking Sold Logic', () => {
 
   it('does NOT mark local inventory items as sold if the status is not pending (e.g. ready)', async () => {
     // Mock get response showing an approved Mercado Pago order with a 'ready' local item
-    ordersAPI.get = vi.fn(() => Promise.resolve({
+    ordersAPI.get = vi.fn().mockResolvedValue({
       id: 'test-order-id',
       order_number: 'ORD-100',
       status: 'PAID',
@@ -136,7 +136,7 @@ describe('OrderDetailsPage - Auto-marking Sold Logic', () => {
           },
         },
       ],
-    })) as any;
+    });
 
     ordersAPI.updateItemDeliveryStatus = vi.fn(() => Promise.resolve({ success: true }));
 

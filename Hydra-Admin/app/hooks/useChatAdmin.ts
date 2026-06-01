@@ -39,7 +39,7 @@ interface ChatMessage {
   createdAt: string;
 }
 
-interface ChatConversation {
+export interface ChatConversation {
   userId: string;
   userEmail: string;
   userName: string;

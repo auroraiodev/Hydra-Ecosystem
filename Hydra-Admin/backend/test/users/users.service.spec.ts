@@ -4,7 +4,7 @@ import { PrismaService } from '../../src/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateUserDto } from '../../src/users/dto/create-user.dto';
 import { UpdateUserDto } from '../../src/users/dto/update-user.dto';
-import { NotFoundError, ConflictError } from '../../src/common/interfaces/api-response.interface';
+
 import { HibpService } from '../../src/common/hibp/hibp.service';
 
 describe('UsersService', () => {

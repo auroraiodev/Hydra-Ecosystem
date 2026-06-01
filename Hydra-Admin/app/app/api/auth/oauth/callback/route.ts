@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { encryptCookie, COOKIE_NAME } from '@/lib/cookie-crypto';
 
 const AUTH_SERVICE_URL = (process.env.AUTH_SERVICE_URL || 'http://127.0.0.1:3002/api/v1').replace('localhost', '127.0.0.1');
 

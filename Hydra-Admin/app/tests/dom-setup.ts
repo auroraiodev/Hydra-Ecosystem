@@ -5,9 +5,9 @@ if (typeof window === 'undefined') {
   const dom = new JSDOM('<!doctype html><html><body></body></html>', {
     url: 'http://localhost',
   });
-  const win = dom.window as any;
+  const win = dom.window as unknown as Record<string, unknown>;
   
-  const g = globalThis as any;
+  const g = globalThis as unknown as Record<string, unknown>;
   g.window = win;
   g.document = win.document;
   g.navigator = win.navigator;

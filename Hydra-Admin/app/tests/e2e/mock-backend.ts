@@ -1,4 +1,4 @@
-import { createServer, IncomingMessage, ServerResponse } from 'http';
+import { createServer, IncomingMessage } from 'http';
 import { Server } from 'socket.io';
 import { parse as parseUrl } from 'url';
 
@@ -192,7 +192,15 @@ const chatConversations = [
   },
 ];
 
-const chatMessages: Record<string, any[]> = {
+interface ChatMessage {
+  id: string;
+  userId: string;
+  content: string;
+  sender: string;
+  createdAt: string;
+}
+
+const chatMessages: Record<string, ChatMessage[]> = {
   'user-1': [
     {
       id: 'msg-1',
@@ -695,7 +703,7 @@ const server = createServer(async (req, res) => {
       const key = parts[parts.length - 1] as keyof typeof featureFlags;
       const body = JSON.parse(await readBody(req));
       if (key in featureFlags) {
-        (featureFlags as any)[key] = body.enabled;
+        (featureFlags as Record<string, boolean>)[key] = body.enabled;
         res.writeHead(200);
         res.end(JSON.stringify({ success: true }));
       } else {
@@ -782,10 +790,10 @@ const server = createServer(async (req, res) => {
     // FALLBACK
     res.writeHead(404);
     res.end(JSON.stringify({ error: 'Endpoint not mocked' }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[MOCK BE ERROR]', error);
     res.writeHead(500);
-    res.end(JSON.stringify({ error: 'Mock Server Error', details: error.message }));
+    res.end(JSON.stringify({ error: 'Mock Server Error', details: error instanceof Error ? error.message : 'Unknown error' }));
   }
 });
 

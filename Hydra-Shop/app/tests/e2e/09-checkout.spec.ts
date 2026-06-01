@@ -362,10 +362,7 @@ test.describe('Checkout - Order Submission', () => {
   });
 
   test('checkout POST /api/v1/orders/checkout is called on confirm', async ({ page }) => {
-    let checkoutCalled = false;
-
     await page.route('**/api/v1/orders/checkout', async (route) => {
-      checkoutCalled = true;
       await route.fulfill({
         status: 201,
         contentType: 'application/json',

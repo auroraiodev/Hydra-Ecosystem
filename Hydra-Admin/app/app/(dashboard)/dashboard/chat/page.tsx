@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useChatAdmin } from '@/hooks/useChatAdmin';
+import { useChatAdmin, ChatConversation } from '@/hooks/useChatAdmin';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { toast } from 'sonner';
 import { ChatSidebar, ChatThread, ChatInput } from './components';
@@ -29,16 +29,29 @@ export default function AdminChatPage() {
   } = useChatAdmin();
 
   const [users, setUsers] = useState<User[]>([]);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  const [temporaryConversations, setTemporaryConversations] = useState<any[]>([]);
+  const [_isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [temporaryConversations, setTemporaryConversations] = useState<ChatConversation[]>([]);
 
   useEffect(() => {
     setIsLoadingUsers(true);
     usersAPI
       .list()
-      .then((res: any) => {
-        const raw = res?.data?.data || res?.data || res || [];
-        setUsers(Array.isArray(raw) ? raw : []);
+      .then((res: unknown) => {
+        const response = res as Record<string, unknown>;
+        let raw: unknown = null;
+        if (response && typeof response === 'object') {
+          if ('data' in response) {
+            const inner = response.data;
+            if (inner && typeof inner === 'object' && 'data' in inner) {
+              raw = (inner as Record<string, unknown>).data;
+            } else {
+              raw = inner;
+            }
+          } else {
+            raw = response;
+          }
+        }
+        setUsers(Array.isArray(raw) ? (raw as User[]) : []);
       })
       .catch((err) => {
         console.error('Error fetching users for chat:', err);

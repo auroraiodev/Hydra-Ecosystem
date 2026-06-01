@@ -84,10 +84,7 @@ export class AdminDashboardController {
   @Roles('ADMIN')
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Block an IP address' })
-  async blockIp(
-    @Body() body: { ip: string; reason?: string },
-    @Req() req: any,
-  ) {
+  async blockIp(@Body() body: { ip: string; reason?: string }, @Req() req: any) {
     return this.adminService.blockIp(body.ip, body.reason, req.user?.userId);
   }
 
@@ -112,10 +109,7 @@ export class AdminDashboardController {
   @Roles('ADMIN')
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Block a user' })
-  async blockUser(
-    @Body() body: { userId: string; reason?: string },
-    @Req() req: any,
-  ) {
+  async blockUser(@Body() body: { userId: string; reason?: string }, @Req() req: any) {
     return this.adminService.blockUser(body.userId, body.reason, req.user?.userId);
   }
 

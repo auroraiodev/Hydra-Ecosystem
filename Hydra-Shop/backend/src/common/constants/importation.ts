@@ -26,28 +26,34 @@ export const IMPORTATION_LANGUAGE_MAP: Record<string, string> = Object.assign(Ob
   '12': 'ENGLISH',
 });
 
-export const IMPORTATION_DISPLAY_NAMES: Record<string, string> = Object.assign(Object.create(null), {
-  JAPANESE: 'Japonés',
-  ENGLISH: 'Inglés',
-  FRENCH: 'Francés',
-  CHINESE: 'Chino',
-  GERMAN: 'Alemán',
-  ITALIAN: 'Italiano',
-  KOREAN: 'Coreano',
-  PORTUGUESE: 'Portugués',
-  RUSSIAN: 'Ruso',
-  SPANISH: 'Español',
-});
+export const IMPORTATION_DISPLAY_NAMES: Record<string, string> = Object.assign(
+  Object.create(null),
+  {
+    JAPANESE: 'Japonés',
+    ENGLISH: 'Inglés',
+    FRENCH: 'Francés',
+    CHINESE: 'Chino',
+    GERMAN: 'Alemán',
+    ITALIAN: 'Italiano',
+    KOREAN: 'Coreano',
+    PORTUGUESE: 'Portugués',
+    RUSSIAN: 'Ruso',
+    SPANISH: 'Español',
+  },
+);
 
-export const IMPORTATION_SEARCH_LANG_MAP: Record<string, string> = Object.assign(Object.create(null), {
-  inglés: IMPORTATION_LANGUAGE_CODES.ENGLISH,
-  japonés: IMPORTATION_LANGUAGE_CODES.JAPANESE,
-  español: IMPORTATION_LANGUAGE_CODES.SPANISH,
-  francés: IMPORTATION_LANGUAGE_CODES.FRENCH,
-  alemán: IMPORTATION_LANGUAGE_CODES.GERMAN,
-  italiano: IMPORTATION_LANGUAGE_CODES.ITALIAN,
-  chino: IMPORTATION_LANGUAGE_CODES.CHINESE,
-  coreano: IMPORTATION_LANGUAGE_CODES.KOREAN,
-  portugués: IMPORTATION_LANGUAGE_CODES.PORTUGUESE,
-  ruso: IMPORTATION_LANGUAGE_CODES.RUSSIAN,
-});
+export const IMPORTATION_SEARCH_LANG_MAP: Record<string, string> = Object.assign(
+  Object.create(null),
+  {
+    inglés: IMPORTATION_LANGUAGE_CODES.ENGLISH,
+    japonés: IMPORTATION_LANGUAGE_CODES.JAPANESE,
+    español: IMPORTATION_LANGUAGE_CODES.SPANISH,
+    francés: IMPORTATION_LANGUAGE_CODES.FRENCH,
+    alemán: IMPORTATION_LANGUAGE_CODES.GERMAN,
+    italiano: IMPORTATION_LANGUAGE_CODES.ITALIAN,
+    chino: IMPORTATION_LANGUAGE_CODES.CHINESE,
+    coreano: IMPORTATION_LANGUAGE_CODES.KOREAN,
+    portugués: IMPORTATION_LANGUAGE_CODES.PORTUGUESE,
+    ruso: IMPORTATION_LANGUAGE_CODES.RUSSIAN,
+  },
+);

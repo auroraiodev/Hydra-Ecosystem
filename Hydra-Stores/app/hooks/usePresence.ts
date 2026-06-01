@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { useAppSelector } from '@/lib/store';
-import { tokenStore } from '@/lib/auth/tokenStore';
+import { useAuth } from '@/hooks/use-auth';
 
 function getWsUrl(): string {
   const envChatUrl = process.env.NEXT_PUBLIC_CHAT_URL;
@@ -20,21 +19,18 @@ function getWsUrl(): string {
 }
 
 export function usePresence() {
-  const socketRef = useRef<ReturnType<typeof import('socket.io-client')['io']> | null>(null);
+  const socketRef = useRef<any>(null);
   const pathname = usePathname();
-  const isAuthenticated = useAppSelector((s) => s.auth?.isAuthenticated);
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
 
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const token = tokenStore.get();
-    if (!token) return;
-
-    let socket: ReturnType<typeof import('socket.io-client')['io']>;
+    let socket: any;
 
     import('socket.io-client').then(({ io }) => {
       socket = io(`${getWsUrl()}/presence`, {
-        auth: { token },
         query: { page: pathname },
         transports: ['websocket', 'polling'],
         reconnection: true,
@@ -53,7 +49,6 @@ export function usePresence() {
       socket?.disconnect();
       socketRef.current = null;
     };
-    // Only re-run on auth change, not pathname (page_change handles route updates)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
@@ -61,7 +56,6 @@ export function usePresence() {
   useEffect(() => {
     const socket = socketRef.current;
     if (!socket) return;
-    // Use a small timeout to ensure socket is connected before emitting
     const t = setTimeout(() => {
       if (socketRef.current?.connected) {
         socketRef.current.emit('page_change', { page: pathname });
@@ -70,3 +64,4 @@ export function usePresence() {
     return () => clearTimeout(t);
   }, [pathname]);
 }
+

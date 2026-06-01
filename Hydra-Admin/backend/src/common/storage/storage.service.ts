@@ -76,7 +76,7 @@ export class StorageService implements OnModuleInit {
 
       const originalExtension = file.originalname.split('.').pop()?.toLowerCase() || 'jpg';
       const isPng = originalExtension === 'png';
-      
+
       const extension = isPng ? 'png' : 'jpg';
       const fileName = `${randomUUID()}.${extension}`;
       const key = `${folder}/${fileName}`;
@@ -84,7 +84,7 @@ export class StorageService implements OnModuleInit {
       this.logger.debug(`Optimizing image: ${file.originalname} as ${extension}`);
 
       const image = await Jimp.read(file.buffer);
-      
+
       const width = image.getWidth();
       const height = image.getHeight();
       if (width > 1200 || height > 1200) {

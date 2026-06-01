@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { navigateAndWait, fillInput, clickButton } from './helpers';
+import { navigateAndWait, fillInput } from './helpers';
 
 // ─── Login Form ───────────────────────────────────────────────────────────────
 

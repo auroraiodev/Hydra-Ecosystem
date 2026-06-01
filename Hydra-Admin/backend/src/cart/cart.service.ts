@@ -641,7 +641,7 @@ export class CartService {
             cleanTransformed.basePriceMXN ||
             discountedPrice ||
             0
-          : cleanTransformed.price_mxn_local ?? discountedPrice ??0;
+          : (cleanTransformed.price_mxn_local ?? discountedPrice ?? 0);
       } else {
         selectedPrice = cleanTransformed.price_mxn_local || discountedPrice || 0;
       }

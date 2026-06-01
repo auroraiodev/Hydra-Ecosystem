@@ -54,7 +54,6 @@ test.describe('Search - Results Rendering', () => {
     // Either product cards appear or the page shows content
     const cards = page.locator('[data-testid="product-card"]');
     const cardCount = await cards.count();
-    const bodyText = await page.locator('body').textContent();
 
     // The page should show something useful (cards, product names, or skeleton)
     expect((await page.locator('main').count()) > 0).toBeTruthy();
@@ -130,9 +129,7 @@ test.describe('Search - Query Parameter Handling', () => {
   });
 
   test('?query=ragavan sends search request with that term', async ({ page }) => {
-    let capturedUrl = '';
     await page.route('**/api/v1/products/search**', async (route) => {
-      capturedUrl = route.request().url();
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -143,7 +140,6 @@ test.describe('Search - Query Parameter Handling', () => {
       });
     });
     await page.route('**/api/v1/search**', async (route) => {
-      capturedUrl = route.request().url();
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

@@ -31,9 +31,6 @@ test.describe('Cart - Empty State', () => {
     await page.waitForTimeout(2000);
 
     const bodyText = await page.locator('body').textContent();
-    const hasEmptyMsg = bodyText?.match(
-      /carrito.*vacío|vacío|no tienes|productos|explorar|empieza/i,
-    );
     // Either an empty-cart message appears, or cart shows items (local storage)
     expect(typeof bodyText).toBe('string');
   });

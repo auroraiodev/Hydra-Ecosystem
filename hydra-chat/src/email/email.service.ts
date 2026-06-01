@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { NotifyClientService } from '../notify-client/notify-client.service.js';
+import { Injectable } from "@nestjs/common";
+import { NotifyClientService } from "../notify-client/notify-client.service.js";
 
 @Injectable()
 export class EmailService {

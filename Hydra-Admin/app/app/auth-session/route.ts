@@ -50,7 +50,7 @@ async function attemptRefresh(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const raw = request.cookies.get(COOKIE_NAME)?.value;
-  let token = raw ? decryptCookie(raw) : null;
+  const token = raw ? decryptCookie(raw) : null;
   let payload: Record<string, unknown> | null = null;
 
   if (token) {

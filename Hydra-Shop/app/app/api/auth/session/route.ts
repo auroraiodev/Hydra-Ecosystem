@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
   const isProduction = process.env.NODE_ENV === 'production';
   const authToken = request.cookies.get('__sid')?.value;
 
-  let payload: any = null;
+  let payload: Record<string, unknown> | null = null;
 
   if (authToken) {
     try {
@@ -54,7 +54,9 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const isExpired = payload?.exp && (Date.now() >= payload.exp * 1000);
+  const exp = typeof payload?.exp === 'number' ? payload.exp : 0;
+  const isExpired = exp > 0 && Math.floor(Date.now() / 1000) >= exp;
+
 
   if (!payload || isExpired) {
     const refreshData = await attemptRefresh(request);

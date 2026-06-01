@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { SearchClientService } from './search-client.service.js';
+import { Module } from "@nestjs/common";
+import { SearchClientService } from "./search-client.service.js";
 
 @Module({
   providers: [SearchClientService],

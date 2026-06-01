@@ -203,7 +203,8 @@ export class PaymentsService implements OnModuleInit {
   ): Promise<payments> {
     // Extract transaction_amount from the MP payment object if present
     // This is the authoritative amount the customer actually paid
-    const txAmount = paymentData?.transaction_amount ?? paymentData?.transactionDetails?.totalAmount;
+    const txAmount =
+      paymentData?.transaction_amount ?? paymentData?.transactionDetails?.totalAmount;
     return await (this.prisma as any).payments.update({
       where: { id: paymentId },
       data: {

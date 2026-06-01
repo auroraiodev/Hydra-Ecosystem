@@ -3,7 +3,6 @@ import {
   navigateAndWait,
   setDesktopViewport,
   setMobileViewport,
-  expectAllImagesLoaded,
 } from './helpers';
 
 // ─── Page Load & Title ─────────────────────────────────────────────────────────
