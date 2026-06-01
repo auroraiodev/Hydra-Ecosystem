@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { createContext, useEffect, useCallback, useRef, useReducer } from 'react';
-import { api, type Notification } from '@/lib/api/client';
+import { api, ApiError, type Notification } from '@/lib/api/client';
 import { useAppSelector } from '@/lib/store';
 import { useToast } from '@/features/shared';
 
@@ -73,8 +73,16 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const { info } = useToast();
 
+  // Circuit breaker: stop polling when session is confirmed dead
+  const sessionExpiredRef = useRef(false);
+
+  // Reset circuit breaker when user changes (new login)
+  useEffect(() => {
+    sessionExpiredRef.current = false;
+  }, [user?.id]);
+
   const fetchNotifications = useCallback(async () => {
-    if (!isAuthenticated || !user) return;
+    if (!isAuthenticated || !user || sessionExpiredRef.current) return;
     notifDispatch({ type: 'SET_LOADING', payload: true });
     try {
       const data = await api.getNotifications();
@@ -84,7 +92,13 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
         notifDispatch({ type: 'RESET' });
       }
     } catch (error) {
-      console.error('[useNotifications] Error fetching notifications:', error);
+      if (error instanceof ApiError && error.status === 401) {
+        // Refresh already failed inside client.ts — session is dead, stop polling
+        sessionExpiredRef.current = true;
+        notifDispatch({ type: 'RESET' });
+      } else {
+        console.error('[useNotifications] Error fetching notifications:', error);
+      }
     } finally {
       notifDispatch({ type: 'SET_LOADING', payload: false });
     }
@@ -118,6 +132,16 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     infoRef.current = info;
   }, [info]);
+
+  // Stop polling immediately when the api client signals session expiry
+  useEffect(() => {
+    const handler = () => {
+      sessionExpiredRef.current = true;
+      notifDispatch({ type: 'RESET' });
+    };
+    window.addEventListener('auth:session-expired', handler);
+    return () => window.removeEventListener('auth:session-expired', handler);
+  }, []);
 
   // Poll for notifications instead of Supabase Realtime
   useEffect(() => {

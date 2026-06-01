@@ -12,7 +12,7 @@ export interface Notification {
   created_at: string;
 }
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
@@ -64,6 +64,10 @@ class ApiClient {
                   tokenStore.set(refreshData.token);
                   return refreshData.token as string;
                 }
+              }
+              // Refresh failed — session is dead, signal consumers
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('auth:session-expired'));
               }
               return null;
             })
