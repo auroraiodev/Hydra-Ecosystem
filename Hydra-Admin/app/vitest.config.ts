@@ -9,6 +9,7 @@ export default defineConfig({
       exclude: ['**/node_modules/**', '**/dist/**'],
       include: ['**/*.{test,spec}.{ts,tsx}'],
       css: true,
+      pool: 'forks',
     },
   resolve: {
     alias: {

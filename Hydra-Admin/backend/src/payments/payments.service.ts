@@ -201,12 +201,19 @@ export class PaymentsService implements OnModuleInit {
     paymentData: any,
     status: string,
   ): Promise<payments> {
+    // Extract transaction_amount from the MP payment object if present
+    // This is the authoritative amount the customer actually paid
+    const txAmount = paymentData?.transaction_amount ?? paymentData?.transactionDetails?.totalAmount;
     return await (this.prisma as any).payments.update({
       where: { id: paymentId },
       data: {
         mercadopago_payment_id: mercadopagoPaymentId,
-
-        payment_data: paymentData,
+        // Store the full MP payment response + also store transaction_amount at top level
+        // so getOrderPaymentBalance can read it without deep traversal
+        payment_data: {
+          ...(typeof paymentData === 'object' ? paymentData : {}),
+          transaction_amount: txAmount != null ? Number(txAmount) : null,
+        },
         status,
       },
     });

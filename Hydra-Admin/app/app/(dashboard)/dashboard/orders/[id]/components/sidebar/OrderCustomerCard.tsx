@@ -46,6 +46,20 @@ export function OrderCustomerCard({ order }: OrderCustomerCardProps) {
                   : order.paymentMethod?.replace('_', ' ') || 'transfer'}
               </p>
             </div>
+            {order.shippingMethod && (
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/50">
+                  Entrega
+                </p>
+                <p className="text-xs font-bold text-text-body capitalize">
+                  {order.shippingMethod === 'envio' || order.shippingMethod === 'SHIPPING'
+                    ? 'Envío a domicilio'
+                    : order.shippingMethod === 'pickup'
+                      ? 'Recoger en punto'
+                      : order.shippingMethod}
+                </p>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/50">
                 Estado del Pago

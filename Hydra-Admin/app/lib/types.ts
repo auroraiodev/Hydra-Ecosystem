@@ -55,4 +55,5 @@ export interface Order {
   internalOrderNumber?: string;
   notes?: string;
   trackingEntries?: { date: string; time: string; origin: string; event: string }[];
+  shippingMethod?: string;
 }

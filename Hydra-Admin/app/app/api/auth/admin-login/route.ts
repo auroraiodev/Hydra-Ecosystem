@@ -28,45 +28,16 @@ export async function POST(request: NextRequest) {
     const data = await backendResponse.json();
     const backendData = data?.data || data;
 
-    const response = NextResponse.json({
-      user: backendData.user,
-      refreshToken: backendData.refreshToken,
-    });
-
-    if (backendData.accessToken) {
-      response.cookies.set(COOKIE_NAME, encryptCookie(backendData.accessToken), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
-        maxAge: COOKIE_MAX_AGE,
-      });
-
-      // Plain role cookie — no sensitive data, readable by Edge middleware for redirects.
-      // The backend verifies the full JWT on every API call; this is only for UX routing.
-      const userRole = backendData.user?.role?.name || backendData.user?.role || '';
-      if (userRole) {
-        response.cookies.set('__role', userRole.toUpperCase(), {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          path: '/',
-          maxAge: COOKIE_MAX_AGE,
-        });
-      }
-    }
-
-    if (backendData.refreshToken) {
-      response.cookies.set('refresh-token', backendData.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
-        maxAge: REFRESH_COOKIE_MAX_AGE,
-      });
-    }
-
-    return response;
+    // Backend has already set httpOnly __sid=<raw JWT> cookie via its own Set-Cookie header.
+// We do NOT re-set the cookie here — doing so causes a double Set-Cookie fight where
+// the browser stores our encrypted value but the backend's JwtStrategy reads the raw JWT,
+// causing every request after login to fail with 401.
+//
+// The backend's cookie is the authoritative session token. No further cookie action needed.
+return NextResponse.json({
+  user: backendData.user,
+  refreshToken: backendData.refreshToken,
+});
   } catch (error) {
     console.error('Admin login error:', error);
     return NextResponse.json(

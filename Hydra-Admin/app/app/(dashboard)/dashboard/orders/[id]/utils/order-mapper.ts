@@ -218,5 +218,9 @@ export function mapBackendOrderToOrder(backendOrder: any): Order {
       backendOrder.internalOrderNumber || backendOrder.internal_order_number || undefined,
     notes: backendOrder.notes || undefined,
     trackingEntries: backendOrder.trackingEntries || backendOrder.tracking_entries || undefined,
+    shippingMethod:
+      backendOrder.shipping?.shipping_methods?.name ||
+      backendOrder.shippingMethod ||
+      undefined,
   };
 }

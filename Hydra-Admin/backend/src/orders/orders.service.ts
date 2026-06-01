@@ -3027,12 +3027,26 @@ export class OrdersService {
           },
         },
         importation_items: true,
+        shipping: {
+          include: {
+            shipping_methods: true,
+          },
+        },
       },
     });
 
     if (!order) {
       throw new NotFoundException(`Order ${orderId} not found during finalization`);
     }
+
+    // Determine if this is an "envio" (home delivery) order vs pickup
+    // If shipping method is 'envio' or 'SHIPPING', mark as SHIPPED immediately
+    const shippingMethod = order.shipping?.shipping_methods?.name ?? '';
+    const isEnvio =
+      shippingMethod === 'envio' ||
+      shippingMethod === 'Envío' ||
+      shippingMethod === 'SHIPPING' ||
+      shippingMethod === 'Shipping';
 
     // 1. Process all local items (stock + balance)
     // 3. Mark all items as delivered/sold and process seller payments
@@ -3042,11 +3056,16 @@ export class OrdersService {
       await this.processOrderItemFinalization(orderId, item.id, tx);
     }
 
-    // 2. Mark order as PAID
+    // 2. Mark order as PAID or SHIPPED depending on shipping method
+    // For "envio" (home delivery) orders, set directly to SHIPPED since stock is decremented
+    // and the package needs to be dispatched. For pickup, keep at PAID.
     await tx.orders.update({
       where: { id: orderId },
-      data: { status: 'PAID' },
+      data: { status: isEnvio ? 'SHIPPED' : 'PAID' },
     });
+    this.logger.log(
+      `Order ${orderId} finalized as ${isEnvio ? 'SHIPPED' : 'PAID'} (shipping method: ${shippingMethod})`,
+    );
 
     // 3. Clear from cart only the items that were purchased in this order
     const localSingleIds = (order.items || []).map((i: any) => i.single_id).filter(Boolean);

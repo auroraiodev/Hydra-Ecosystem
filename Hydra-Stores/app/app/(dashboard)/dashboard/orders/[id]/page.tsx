@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -107,7 +107,10 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     if (order.paymentMethod !== 'mercadopago' || order.paymentStatus !== 'approved') return;
 
     const undeliveredLocalItems = order.items.filter(
-      (item) => item.isLocalInventory && !item.isDelivered
+      (item) =>
+        item.isLocalInventory &&
+        !item.isDelivered &&
+        (!item.deliveryStatus || item.deliveryStatus === 'pending')
     );
     if (undeliveredLocalItems.length === 0) return;
 
