@@ -24,9 +24,16 @@ export function useNotifications() {
   const { user } = useAuth();
   const fetchNotificationsRef = useRef<() => Promise<void>>(undefined);
   const fetchingRef = useRef(false);
+  // Circuit breaker: stop polling once the session is confirmed dead
+  const sessionExpiredRef = useRef(false);
+
+  // Reset circuit breaker on new login
+  useEffect(() => {
+    sessionExpiredRef.current = false;
+  }, [user?.id]);
 
   const fetchNotifications = useCallback(async () => {
-    if (!user || fetchingRef.current) return;
+    if (!user || fetchingRef.current || sessionExpiredRef.current) return;
 
     fetchingRef.current = true;
     startTransition(async () => {
@@ -35,8 +42,12 @@ export function useNotifications() {
         const notificationsArray = Array.isArray(data) ? data : data?.notifications || [];
         setNotifications(notificationsArray);
         setUnreadCount(notificationsArray.filter((n: Notification) => !n.is_read).length);
-      } catch {
-        // silent — stale data is better than a noisy error
+      } catch (error: unknown) {
+        const status = (error as { status?: number })?.status;
+        if (status === 401) {
+          // Refresh already failed inside apiCall — session dead, stop polling
+          sessionExpiredRef.current = true;
+        }
       } finally {
         fetchingRef.current = false;
       }
