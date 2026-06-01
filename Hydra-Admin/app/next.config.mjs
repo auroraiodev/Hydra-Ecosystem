@@ -67,12 +67,9 @@ const nextConfig = {
         .replace(/\/$/, '');
     const apiWssOrigin = apiOrigin.replace(/^https?:\/\//, 'wss://');
 
-    // Strict CSP for admin dashboard — no external scripts, no inline eval
     const csp = [
       "default-src 'self'",
-      isDev
-        ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-        : "script-src 'self' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self'",
       "img-src 'self' data: blob: http://localhost:3002 http://127.0.0.1:3002 https://api.hydracollect.com https://hydracollect.com https://*.hydracollect.com https://lh3.googleusercontent.com https://*.googleusercontent.com https://*.supabase.co https://*.scryfall.com https://*.scryfall.io https://*.media-amazon.com https://*.importationmtg.com https://importationmtg.com https://*.sslip.io",

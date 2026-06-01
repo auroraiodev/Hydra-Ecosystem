@@ -39,7 +39,7 @@ export const baseMetadata: Metadata = {
   publisher: 'Hydra Collectables',
   manifest: '/manifest.json',
   icons: {
-    icon: [{ url: '/cat.png', type: 'image/png' }],
+    icon: [{ url: '/cat.png', type: 'image/png', sizes: 'any' }],
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
       { url: '/apple-icon-152x152.png', sizes: '152x152', type: 'image/png' },
@@ -47,7 +47,6 @@ export const baseMetadata: Metadata = {
       { url: '/apple-icon-120x120.png', sizes: '120x120', type: 'image/png' },
       { url: '/apple-icon-76x76.png', sizes: '76x76', type: 'image/png' },
     ],
-    shortcut: '/cat.png',
   },
   openGraph: {
     type: 'website',

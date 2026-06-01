@@ -126,9 +126,7 @@ export async function proxy(request: NextRequest) {
   // with 'self' and 'https:' instead — standard practice for Next.js apps.
   const isDev = process.env.NODE_ENV === 'development';
 
-  const scriptSrc = isDev
-    ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' https:`
-    : `script-src 'self' 'unsafe-inline' https:`;
+  const scriptSrc = `script-src 'self' 'unsafe-inline' 'unsafe-eval' https:`;
 
   // Use NEXT_PUBLIC_API_URL for the CSP origin — it's the public-facing URL.
   // BACKEND_URL may be an internal Docker hostname (e.g. http://hydra-backend:3002)
