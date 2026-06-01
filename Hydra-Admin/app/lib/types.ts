@@ -56,4 +56,17 @@ export interface Order {
   notes?: string;
   trackingEntries?: { date: string; time: string; origin: string; event: string }[];
   shippingMethod?: string;
+  shippingCost?: number;
+  shipping?: {
+    id: string;
+    shippingMethod: string;
+    address?: {
+      street?: string;
+      city?: string;
+      state?: string;
+      zipCode?: string;
+      country?: string;
+      receiverName?: string;
+    };
+  };
 }

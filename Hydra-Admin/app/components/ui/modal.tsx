@@ -37,6 +37,7 @@ export function Modal({
           'w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto',
           className,
         )}
+        aria-describedby={description ? undefined : undefined}
       >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

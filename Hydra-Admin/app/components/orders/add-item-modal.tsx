@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ArrowSync24Regular } from '@fluentui/react-icons';
@@ -47,9 +48,9 @@ export function AddItemModal({ isOpen, onClose, onConfirm }: AddItemModalProps) 
       <DialogContent className="w-[95vw] sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Add Item to Order</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogDescription className="text-sm text-muted-foreground">
             Search for products to add (local & import)
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 flex-1 overflow-y-auto min-h-[300px]">

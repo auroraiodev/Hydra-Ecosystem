@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -308,6 +308,20 @@ export function OrderItemsCard({
                 </td>
                 <td className="px-4 py-3"></td>
               </tr>
+              {(order.shippingCost || 0) > 0 && (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-4 py-3 text-right text-muted-foreground/60 text-xs font-black uppercase tracking-wider"
+                  >
+                    Envío
+                  </td>
+                  <td className="px-4 py-3 text-right tabular-nums text-sm text-emerald-600">
+                    ${(order.shippingCost || 0).toFixed(2)}
+                  </td>
+                  <td className="px-4 py-3"></td>
+                </tr>
+              )}
               {(order.importFee || 0) > 0 && (
                 <tr>
                   <td

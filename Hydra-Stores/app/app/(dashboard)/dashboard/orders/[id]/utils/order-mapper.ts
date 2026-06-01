@@ -210,5 +210,38 @@ export function mapBackendOrderToOrder(backendOrder: any): Order {
       backendOrder.internalOrderNumber || backendOrder.internal_order_number || undefined,
     notes: backendOrder.notes || undefined,
     trackingEntries: backendOrder.trackingEntries || backendOrder.tracking_entries || undefined,
+    shippingMethod:
+      backendOrder.shipping?.shipping_methods?.name ||
+      backendOrder.shippingMethod ||
+      undefined,
+    shippingCost: Number(backendOrder.shippingCost) || Number(backendOrder.shipping_cost) || 0,
+    shipping: backendOrder.shipping
+      ? {
+          id: backendOrder.shipping.id,
+          shippingMethod:
+            backendOrder.shipping.shippingMethod ||
+            backendOrder.shipping.shipping_methods?.name ||
+            'Unknown',
+          address: backendOrder.shipping.address
+            ? {
+                street: backendOrder.shipping.address.street || '',
+                city: backendOrder.shipping.address.city || '',
+                state: backendOrder.shipping.address.state || '',
+                zipCode: backendOrder.shipping.address.zipCode || backendOrder.shipping.address.zip_code || '',
+                country: backendOrder.shipping.address.country || '',
+                receiverName: backendOrder.shipping.address.receiverName || backendOrder.shipping.address.receiver_name || '',
+              }
+            : backendOrder.shipping.user_addresses
+              ? {
+                  street: backendOrder.shipping.user_addresses.street || '',
+                  city: backendOrder.shipping.user_addresses.city || '',
+                  state: backendOrder.shipping.user_addresses.state || '',
+                  zipCode: backendOrder.shipping.user_addresses.zip_code || '',
+                  country: backendOrder.shipping.user_addresses.country || '',
+                  receiverName: backendOrder.shipping.user_addresses.receiver_name || '',
+                }
+              : undefined,
+        }
+      : undefined,
   };
 }

@@ -128,7 +128,7 @@ export function UserAutocomplete({
     } else if (!value && selectedUser) {
       dispatch({ type: 'SET_SELECTED_USER', user: null });
     }
-  }, [value, selectedUser?.id, selectedUser]);
+  }, [value, selectedUser?.id]);
 
   return (
     <div className="flex items-center gap-2">

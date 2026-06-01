@@ -48,7 +48,7 @@ export function ProductImageZoom({
           />
         </div>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none">
+      <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none" aria-describedby={undefined}>
         <DialogTitle className="sr-only">{alt}</DialogTitle>
         <div className="relative aspect-[3/4] w-full max-h-[80vh] flex items-center justify-center p-4">
           <Image

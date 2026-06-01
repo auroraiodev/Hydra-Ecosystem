@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useCallback, useReducer } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -277,6 +277,28 @@ export function OrderDetailsSidebar({ order, onRefresh }: { order: Order; onRefr
             <p className="text-sm text-muted-foreground">Email</p>
             <p className="font-medium">{order.email}</p>
           </div>
+          {order.shipping?.address && (
+            <div className="pt-4 border-t border-border/40">
+              <p className="text-xs font-black uppercase tracking-wider text-muted-foreground/50 mb-2">
+                Dirección de Envío
+              </p>
+              <div className="flex flex-col text-sm text-foreground/90 leading-normal font-semibold">
+                {order.shipping.address.receiverName && (
+                  <p className="font-bold text-xs text-muted-foreground mb-1">
+                    Destinatario: {order.shipping.address.receiverName}
+                  </p>
+                )}
+                <p>{order.shipping.address.street}</p>
+                <p>
+                  {order.shipping.address.city}, {order.shipping.address.state}
+                </p>
+                <p>
+                  CP: {order.shipping.address.zipCode}
+                  {order.shipping.address.country && `, ${order.shipping.address.country}`}
+                </p>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

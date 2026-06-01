@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback, useMemo, useReducer } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -123,6 +123,39 @@ function mapBackendOrderToOrder(backendOrder: any): Order {
     deliveryPointId: backendOrder.delivery_point_id || backendOrder.deliveryPointId,
     paymentMethod: backendOrder.payment?.paymentMethod || backendOrder.payment_method || 'transfer',
     paymentStatus: backendOrder.payment?.status || backendOrder.payment_status || 'pending',
+    shippingMethod:
+      backendOrder.shipping?.shipping_methods?.name ||
+      backendOrder.shippingMethod ||
+      undefined,
+    shippingCost: Number(backendOrder.shippingCost) || Number(backendOrder.shipping_cost) || 0,
+    shipping: backendOrder.shipping
+      ? {
+          id: backendOrder.shipping.id,
+          shippingMethod:
+            backendOrder.shipping.shippingMethod ||
+            backendOrder.shipping.shipping_methods?.name ||
+            'Unknown',
+          address: backendOrder.shipping.address
+            ? {
+                street: backendOrder.shipping.address.street || '',
+                city: backendOrder.shipping.address.city || '',
+                state: backendOrder.shipping.address.state || '',
+                zipCode: backendOrder.shipping.address.zipCode || backendOrder.shipping.address.zip_code || '',
+                country: backendOrder.shipping.address.country || '',
+                receiverName: backendOrder.shipping.address.receiverName || backendOrder.shipping.address.receiver_name || '',
+              }
+            : backendOrder.shipping.user_addresses
+              ? {
+                  street: backendOrder.shipping.user_addresses.street || '',
+                  city: backendOrder.shipping.user_addresses.city || '',
+                  state: backendOrder.shipping.user_addresses.state || '',
+                  zipCode: backendOrder.shipping.user_addresses.zip_code || '',
+                  country: backendOrder.shipping.user_addresses.country || '',
+                  receiverName: backendOrder.shipping.user_addresses.receiver_name || '',
+                }
+              : undefined,
+        }
+      : undefined,
   };
 }
 

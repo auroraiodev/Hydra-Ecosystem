@@ -34,6 +34,31 @@ export function OrderCustomerCard({ order }: OrderCustomerCardProps) {
               </p>
             </div>
           </div>
+          {order.shipping?.address && (
+            <>
+              <div className="h-px bg-border/40 w-full" />
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/50">
+                  Dirección de Envío
+                </p>
+                <div className="flex flex-col text-sm text-text-body leading-normal font-semibold">
+                  {order.shipping.address.receiverName && (
+                    <p className="font-bold text-xs text-muted-foreground mb-1">
+                      Destinatario: {order.shipping.address.receiverName}
+                    </p>
+                  )}
+                  <p>{order.shipping.address.street}</p>
+                  <p>
+                    {order.shipping.address.city}, {order.shipping.address.state}
+                  </p>
+                  <p>
+                    CP: {order.shipping.address.zipCode}
+                    {order.shipping.address.country && `, ${order.shipping.address.country}`}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
           <div className="h-px bg-border/40 w-full" />
           <div className="space-y-3">
             <div className="flex items-center justify-between">

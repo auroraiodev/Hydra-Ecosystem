@@ -1495,8 +1495,11 @@ export class OrdersService {
       },
     });
 
-    // If manually updated to PAID, finalize the order (deduct stock, update balances)
-    if (order.status === 'PENDING' && status === 'PAID') {
+    // If manually updated to PAID from a pre-finalization state, finalize the order
+    // (deduct stock, update seller balances). Skip for already-finalized statuses since
+    // processOrderItemFinalization already ran when the order first became PAID.
+    const notYetFinalized = !['PAID', 'PROCESSING', 'SHIPPED', 'COMPLETED'].includes(order.status);
+    if (status === 'PAID' && notYetFinalized) {
       await (this.prisma as any).$transaction(async (tx) => {
         await this.finalizePaidOrder(orderId, tx);
       });
@@ -3720,7 +3723,8 @@ export class OrdersService {
     const needsSupplementalPayment =
       difference > 0.5 && // ignore cents-level rounding
       isPaidOrder &&
-      paymentMethod === 'mercadopago';
+      paymentMethod === 'mercadopago' &&
+      paidAmount > 0; // paidAmount = 0 means admin manually confirmed — no supplemental needed
 
     return {
       paidAmount,
