@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronRight, Star } from 'lucide-react';
+import { resolveImageUrl } from '@/lib/utils/imageUrl';
 import { useState, useMemo } from 'react';
 import { ReviewModal } from '@/features/reviews';
 
@@ -63,7 +64,8 @@ export function OrderCard({ order: initialOrder }: OrderCardProps) {
         <div className="flex gap-2">
           {previewItems.map((item, index) => {
             const productData = (item.productData || {}) as Record<string, unknown>;
-            const imageUrl = String(productData.imageUrl || productData.img || '');
+            const rawUrl = String(productData.imageUrl || productData.img || '');
+            const imageUrl = resolveImageUrl(rawUrl);
             const stableId = item.id || `preview-${item.productData?.id || index}`;
 
             return (
@@ -78,6 +80,7 @@ export function OrderCard({ order: initialOrder }: OrderCardProps) {
                     fill
                     sizes="48px"
                     className="object-cover"
+                    unoptimized={imageUrl.startsWith('/api/images/external')}
                   />
                 ) : (
                   <div className="size-full flex items-center justify-center text-[10px] text-text-muted">
