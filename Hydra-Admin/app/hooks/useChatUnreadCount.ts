@@ -19,7 +19,7 @@ function getWsUrl(): string {
   const wsProtocol = protocol === 'https:' ? 'https:' : 'http:';
 
   if (hostname.endsWith('hydracollect.com')) {
-    return `${wsProtocol}//chat.hydracollect.com`;
+    return `${wsProtocol}//${hostname}`;
   }
 
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -73,8 +73,14 @@ export function useChatUnreadCount(): number {
     };
 
     void load();
+
+    // Stop if session expires
+    const handleExpired = () => { mounted = false; };
+    window.addEventListener('auth:session-expired', handleExpired);
+
     return () => {
       mounted = false;
+      window.removeEventListener('auth:session-expired', handleExpired);
     };
   }, []);
 

@@ -13,14 +13,14 @@ function DashboardLayoutWrapperInner({ children }: { children: React.ReactNode }
     const checkAuth = async () => {
       try {
         const response = await fetch('/auth-session', { credentials: 'include' });
-        
+
         if (!response.ok) {
           push('/login');
           return;
         }
 
         const data = await response.json();
-        
+
         if (!data.authenticated) {
           push('/login');
           return;
@@ -41,6 +41,11 @@ function DashboardLayoutWrapperInner({ children }: { children: React.ReactNode }
     };
 
     checkAuth();
+
+    // When any API call detects an expired session, navigate to login cleanly
+    const handleExpired = () => push('/login');
+    window.addEventListener('auth:session-expired', handleExpired);
+    return () => window.removeEventListener('auth:session-expired', handleExpired);
   }, [push]);
 
   if (isLoading) {

@@ -32,6 +32,13 @@ export function useNotifications() {
     sessionExpiredRef.current = false;
   }, [user?.id]);
 
+  // Stop immediately when apiCall signals session expiry
+  useEffect(() => {
+    const handler = () => { sessionExpiredRef.current = true; };
+    window.addEventListener('auth:session-expired', handler);
+    return () => window.removeEventListener('auth:session-expired', handler);
+  }, []);
+
   const fetchNotifications = useCallback(async () => {
     if (!user || fetchingRef.current || sessionExpiredRef.current) return;
 

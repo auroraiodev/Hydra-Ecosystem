@@ -118,9 +118,11 @@ async function apiCall(endpoint: string, options: RequestOptions = {}) {
         }
       }
 
-      // If we fall through here, refresh failed or it was an auth endpoint
+      // If we fall through here, refresh failed or it was an auth endpoint.
+      // Signal consumers (useNotifications, etc.) to stop polling — don't force-navigate
+      // here since hard navigation destroys circuit breakers and restarts the loop.
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        window.dispatchEvent(new Event('auth:session-expired'));
       }
     }
 
