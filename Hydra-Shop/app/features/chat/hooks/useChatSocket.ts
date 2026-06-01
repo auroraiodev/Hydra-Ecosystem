@@ -53,7 +53,7 @@ function getWsUrl(): string {
   const wsProtocol = protocol === 'https:' ? 'https:' : 'http:';
 
   if (hostname.endsWith('hydracollect.com')) {
-    return `${wsProtocol}//${hostname}`;
+    return `${wsProtocol}//chat.hydracollect.com`;
   }
 
   const envUrl = process.env.NEXT_PUBLIC_API_URL;

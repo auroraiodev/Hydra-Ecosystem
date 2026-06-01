@@ -6,22 +6,28 @@ const PRICE_FORMATTER = new Intl.NumberFormat('es-MX', {
   currency: 'MXN',
 });
 
+function getFirstParam(value: string | string[] | undefined): string | null {
+  if (Array.isArray(value)) return value[0] || null;
+  if (typeof value === 'string') return value;
+  return null;
+}
+
 export function getProductMetadata(
   product: Product | null,
   id: string,
   searchParams: Record<string, string | string[] | undefined>
 ): Metadata {
   if (!product) {
-    const nameParam = typeof searchParams.name === 'string' ? searchParams.name : null;
+    const nameParam = getFirstParam(searchParams.name);
     if (nameParam) {
+      const imgParam = getFirstParam(searchParams.img);
       return {
         title: `${nameParam} | Hydra Collectables`,
         description: `Compra ${nameParam}. Disponible en Hydra Collectables.`,
         openGraph: {
           title: `${nameParam} | Hydra Collectables`,
           description: `Compra ${nameParam} en Hydra Collectables.`,
-          images:
-            typeof searchParams.img === 'string' ? [{ url: searchParams.img, alt: nameParam }] : [],
+          images: imgParam ? [{ url: imgParam, alt: nameParam }] : [],
         },
       };
     }

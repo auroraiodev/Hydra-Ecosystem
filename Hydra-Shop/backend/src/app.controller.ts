@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Header } from '@nestjs/common';
 import { AppService } from './app.service.js';
 import { PrismaService } from './database/prisma.service.js';
 import { Public } from './auth/guards/jwt-auth.guard.js';
@@ -14,6 +14,18 @@ export class AppController {
     private readonly prisma: PrismaService,
     private readonly notifyClient: NotifyClientService,
   ) {}
+
+  @Get('robots.txt')
+  @Public()
+  @Header('Content-Type', 'text/plain')
+  @ApiOperation({
+    summary: 'Robots.txt for API domain',
+    description: 'Instructs all search engine crawlers not to index any paths on this API subdomain.',
+  })
+  @ApiResponse({ status: 200, description: 'Plain text robots rules returned.' })
+  getRobots(): string {
+    return 'User-agent: *\nDisallow: /\n';
+  }
 
   @Public()
   @Get()

@@ -1,5 +1,5 @@
 import { Metadata, ResolvingMetadata } from 'next';
-import { permanentRedirect } from 'next/navigation';
+import { permanentRedirect, notFound } from 'next/navigation';
 import {
   ProductDetailsLoader,
   ProductDetailsClient,
@@ -44,7 +44,10 @@ export default async function ProductDetailsPage({ params, searchParams }: Props
   const product = await fetchProductData(id, cardName, language);
 
   if (!product) {
-    return <ProductDetailsClient />;
+    if (cardName) {
+      return <ProductDetailsClient />;
+    }
+    notFound();
   }
 
   // Enforce canonical URL redirect to prevent crawl budget waste and duplicate indexing status.

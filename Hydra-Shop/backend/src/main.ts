@@ -55,8 +55,10 @@ async function bootstrap() {
   // Swagger: guard is inside setupSwagger (development only)
   setupSwagger(app);
 
-  // Set global prefix AFTER Swagger setup
-  app.setGlobalPrefix('api');
+  // Set global prefix AFTER Swagger setup, excluding robots.txt so it can be served at the root
+  app.setGlobalPrefix('api', {
+    exclude: ['robots.txt'],
+  });
 
   // Enable URI versioning (e.g. /api/v1/...)
   app.enableVersioning({

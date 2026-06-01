@@ -30,8 +30,8 @@ export const FOOTER_CATEGORY_LINKS = [
 
 export const FOOTER_SUPPORT_LINKS = [
   { label: 'Centro de Ayuda', href: '/help' },
-  { label: 'Envíos y Entregas', href: '/shipping' },
-  { label: 'Preguntas Frecuentes', href: '/faq' },
+  { label: 'Envíos y Entregas', href: '/help?category=shipping' },
+  { label: 'Preguntas Frecuentes', href: '/help' },
   { label: 'Contacto', href: '/contact' },
 ];
 
@@ -39,5 +39,5 @@ export const FOOTER_LEGAL_LINKS = [
   { label: 'Términos y Condiciones', href: '/terms' },
   { label: 'Aviso de Privacidad', href: '/privacy' },
   { label: 'Política de Cookies', href: '/cookies' },
-  { label: 'Política de Devolución', href: '/refunds' },
+  { label: 'Política de Devolución', href: '/returns' },
 ];
