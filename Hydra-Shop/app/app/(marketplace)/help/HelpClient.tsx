@@ -25,89 +25,200 @@ const categories = [
     id: 'orders',
     title: 'Pedidos y Pagos',
     icon: CreditCard,
-    description: 'Compras, pagos y facturacion',
-    articles: 12,
+    description: 'Compras, pagos y facturación',
   },
   {
     id: 'shipping',
-    title: 'Envios',
+    title: 'Envíos',
     icon: Truck,
     description: 'Rastreo y tiempos de entrega',
-    articles: 8,
   },
   {
     id: 'returns',
     title: 'Devoluciones',
     icon: RotateCcw,
-    description: 'Reembolsos y garantias',
-    articles: 6,
+    description: 'Reembolsos y garantías',
   },
   {
     id: 'account',
     title: 'Mi Cuenta',
     icon: User,
-    description: 'Perfil y configuracion',
-    articles: 10,
+    description: 'Perfil y configuración',
   },
   {
     id: 'authenticity',
     title: 'Autenticidad',
     icon: ShieldCheck,
-    description: 'Verificacion de cartas',
-    articles: 5,
+    description: 'Verificación de cartas',
   },
   {
     id: 'selling',
     title: 'Vender',
     icon: Package,
-    description: 'Como vender tus cartas',
-    articles: 7,
+    description: 'Cómo vender tus cartas',
   },
 ];
 
 const faqs = [
+  // ── Pedidos y Pagos ───────────────────────────────────────────────────────
   {
     category: 'orders',
-    question: 'Como compro cartas en Hydra Collectables?',
+    question: '¿Cómo compro cartas en Hydra Collectables?',
     answer:
-      'Busca la carta que deseas, agregala al carrito y procede al checkout. Aceptamos multiples metodos de pago, incluyendo tarjetas bancarias, transferencia y Google Pay.',
-  },
-  {
-    category: 'shipping',
-    question: 'Cuanto tarda el envio?',
-    answer:
-      'Los envios dentro de Mexico tardan entre 3 a 7 dias habiles dependiendo de tu ubicacion. Ofrecemos envio estandar y express. Los envios de cartas importadas pueden tardar hasta 15 dias habiles.',
-  },
-  {
-    category: 'authenticity',
-    question: 'Como garantizan la autenticidad de las cartas?',
-    answer:
-      'Todas las cartas son verificadas por nuestro equipo de expertos antes de ser enviadas. Utilizamos herramientas de alta precision para garantizar que recibas un producto 100% autentico.',
+      'Busca la carta que deseas usando el buscador, agrégala al carrito y procede al checkout. Elige tu método de pago y tu método de envío. Una vez confirmado el pago recibirás una notificación y podrás ver el estado de tu pedido en "Mis Pedidos".',
   },
   {
     category: 'orders',
-    question: 'Puedo vender mis cartas en Hydra?',
+    question: '¿Qué métodos de pago aceptan?',
     answer:
-      'Hemos lanzado nuestra nueva plataforma de vendedores. Visita nuestra seccion de "Vender" para conocer el proceso detallado y comenzar a certificar tus piezas.',
+      'Aceptamos tres métodos de pago: Transferencia bancaria (SPEI/CLABE a Santander), MercadoPago (tarjeta de crédito/débito y pago en OXXO) y Hydra Wallet (saldo de tu monedero virtual). También puedes combinar tu Hydra Wallet con transferencia o con MercadoPago para cubrir el total.',
+  },
+  {
+    category: 'orders',
+    question: '¿Qué es el Hydra Wallet?',
+    answer:
+      'El Hydra Wallet es tu monedero virtual dentro de la plataforma. Puedes usarlo para pagar pedidos total o parcialmente. Si eres vendedor, tus ganancias se acreditan aquí y puedes solicitar un retiro a tu cuenta bancaria desde la sección "Mi Saldo" en tu perfil.',
+  },
+  {
+    category: 'orders',
+    question: '¿Puedo cancelar mi orden?',
+    answer:
+      'Puedes cancelar tu orden si aún está en estado "Pendiente" (esperando confirmación de pago). Una vez que el pago es confirmado y la orden pasa a "Pagada" o "En proceso", ya no es posible cancelarla. Para solicitar la cancelación, ve a "Mis Pedidos" y selecciona la opción correspondiente.',
+  },
+  {
+    category: 'orders',
+    question: '¿Puedo vender mis cartas en Hydra?',
+    answer:
+      'Sí. Visita la sección "Vender" en el menú principal para registrarte como vendedor y comenzar a listar tus cartas. Una vez aprobado, podrás gestionar tu inventario y precios desde tu panel de vendedor.',
+  },
+
+  // ── Envíos ────────────────────────────────────────────────────────────────
+  {
+    category: 'shipping',
+    question: '¿Cuánto tarda el envío?',
+    answer:
+      'Los envíos dentro de México tardan entre 3 y 7 días hábiles dependiendo de tu ubicación. Las cartas de importación tardan entre 15 y 30 días en llegar a México desde Japón, más 3 días adicionales para llegar a tu destino.',
   },
   {
     category: 'shipping',
-    question: 'Hacen envios internacionales?',
-    answer: 'Por el momento solo realizamos envios dentro del territorio mexicano.',
+    question: '¿Cuáles son las opciones de entrega?',
+    answer:
+      'Ofrecemos dos modalidades: envío a domicilio (entregamos en tu dirección) y recoger en tienda. Puedes elegir tu preferencia durante el proceso de checkout.',
+  },
+  {
+    category: 'shipping',
+    question: '¿Cómo rastro mi pedido?',
+    answer:
+      'Desde "Mis Pedidos" puedes ver el estado actualizado de tu orden en tiempo real: Pendiente → Pagado → En proceso → Enviado → Completado. Si tu pedido incluye cartas de importación, también verás etapas adicionales como "Pedido al proveedor" y "Llegada a México".',
+  },
+  {
+    category: 'shipping',
+    question: '¿Hacen envíos internacionales?',
+    answer: 'Por el momento solo realizamos envíos dentro del territorio mexicano.',
+  },
+
+  // ── Devoluciones ──────────────────────────────────────────────────────────
+  {
+    category: 'returns',
+    question: '¿Cuál es la política de devoluciones?',
+    answer:
+      'Aceptamos devoluciones únicamente si el producto no coincide con la descripción o condición publicada, y solo si se trata de la misma carta (single) que fue enviada. Tienes 3 días naturales tras recibir tu paquete para iniciar un reclamo. El producto sellado no cuenta con devolución.',
   },
   {
     category: 'returns',
-    question: 'Cual es su politica de devoluciones?',
+    question: '¿Cómo inicio una devolución?',
     answer:
-      'Aceptamos devoluciones si el producto no coincide con la descripcion o condicion publicada. Tienes 3 dias naturales tras recibir tu paquete para iniciar un reclamo.',
+      'Contáctanos a través de la sección "Contactar soporte" dentro de los 3 días naturales posteriores a recibir tu paquete. Incluye tu número de orden, fotos del producto recibido y una descripción del problema. Nuestro equipo te guiará en el proceso.',
+  },
+
+  // ── Mi Cuenta ─────────────────────────────────────────────────────────────
+  {
+    category: 'account',
+    question: '¿Cómo edito mi perfil?',
+    answer:
+      'Ve a la sección "Mi Perfil" desde el menú de usuario. Ahí puedes actualizar tu nombre, foto de perfil y dirección de envío predeterminada.',
+  },
+  {
+    category: 'account',
+    question: '¿Dónde veo mi historial de pedidos?',
+    answer:
+      'En el menú de usuario selecciona "Mis Pedidos". Verás todos tus pedidos con su estado actual, fecha y total. Puedes hacer clic en cualquier pedido para ver el detalle completo, el timeline de entrega y opciones de pago si el pedido está pendiente.',
+  },
+  {
+    category: 'account',
+    question: '¿Cómo retiro mi saldo del Hydra Wallet?',
+    answer:
+      'Ve a "Mi Saldo" en tu perfil. Ahí verás tu balance disponible y el historial de transacciones. Para solicitar un retiro, ingresa tu CLABE interbancaria y el nombre del beneficiario. Los retiros se procesan en días hábiles.',
+  },
+  {
+    category: 'account',
+    question: '¿Cómo inicio sesión?',
+    answer:
+      'Puedes iniciar sesión con tu correo y contraseña, o usando tu cuenta de Google. Si olvidaste tu contraseña, usa la opción "¿Olvidaste tu contraseña?" en la pantalla de login.',
+  },
+
+  // ── Autenticidad ──────────────────────────────────────────────────────────
+  {
+    category: 'authenticity',
+    question: '¿Cómo garantizan la autenticidad de las cartas?',
+    answer:
+      'Todas las cartas son verificadas por nuestro equipo antes de ser publicadas o enviadas. Utilizamos herramientas de alta precisión para garantizar que recibas un producto 100% auténtico.',
+  },
+  {
+    category: 'authenticity',
+    question: '¿Qué pasa si recibo una carta falsa o diferente?',
+    answer:
+      'Si el producto que recibiste no corresponde al publicado o sospechas que es una falsificación, contáctanos dentro de los 3 días naturales siguientes a la entrega con fotos y tu número de orden. Gestionaremos el caso de forma prioritaria y sin costo para ti.',
+  },
+
+  // ── Vender ────────────────────────────────────────────────────────────────
+  {
+    category: 'selling',
+    question: '¿Cómo empiezo a vender mis cartas?',
+    answer:
+      'Ve a la sección "Vender" en el menú principal y completa el proceso de registro como vendedor. Una vez aprobado, podrás publicar tus cartas indicando condición, cantidad y precio desde tu panel de vendedor.',
+  },
+  {
+    category: 'selling',
+    question: '¿Cuánta comisión cobra Hydra por venta?',
+    answer:
+      'Hydra retiene el 10% de cada venta como comisión de la plataforma. El 90% restante se acredita directamente en tu Seller Wallet al completarse la orden.',
+  },
+  {
+    category: 'selling',
+    question: '¿Cuándo recibo el pago de mis ventas?',
+    answer:
+      'Las ganancias se acreditan en tu Seller Wallet en cuanto la orden es marcada como completada. Desde ahí puedes solicitar un retiro a tu cuenta bancaria (CLABE) cuando lo desees.',
+  },
+  {
+    category: 'selling',
+    question: '¿Cómo gestiono mi inventario?',
+    answer:
+      'En tu perfil, en la sección "Mis Artículos", puedes ver todas tus cartas publicadas con su estado (Activa, Vendida, En tránsito, En México, Sin publicar), stock disponible, precio y ganancia estimada. Desde ahí también puedes editar o dar de baja un artículo.',
   },
 ];
 
 const popularArticles = [
-  { title: 'Como rastrear mi pedido', category: 'Envios' },
-  { title: 'Metodos de pago aceptados', category: 'Pagos' },
-  { title: 'Proceso de verificacion de cartas', category: 'Autenticidad' },
-  { title: 'Como iniciar una devolucion', category: 'Devoluciones' },
+  {
+    title: '¿Cuánto tarda el envío?',
+    faqCategory: 'shipping',
+    faqQuestion: '¿Cuánto tarda el envío?',
+  },
+  {
+    title: '¿Qué métodos de pago aceptan?',
+    faqCategory: 'orders',
+    faqQuestion: '¿Qué métodos de pago aceptan?',
+  },
+  {
+    title: '¿Cómo rastro mi pedido?',
+    faqCategory: 'shipping',
+    faqQuestion: '¿Cómo rastro mi pedido?',
+  },
+  {
+    title: '¿Política de devoluciones?',
+    faqCategory: 'returns',
+    faqQuestion: '¿Cuál es la política de devoluciones?',
+  },
 ];
 
 export default function HelpClient() {
@@ -123,6 +234,20 @@ export default function HelpClient() {
     const matchesCategory = !activeCategory || faq.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
+
+  function handleArticleClick(faqCategory: string, faqQuestion: string) {
+    setSearchQuery('');
+    setActiveCategory(faqCategory);
+    // openFaq index is relative to filteredFaqs; after setting category the filtered list
+    // will be the category's FAQs in order, so find index within that subset.
+    const idx = faqs
+      .filter((f) => f.category === faqCategory)
+      .findIndex((f) => f.question === faqQuestion);
+    setOpenFaq(idx >= 0 ? idx : 0);
+    setTimeout(() => {
+      document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20 animate-page-enter">
@@ -215,7 +340,7 @@ export default function HelpClient() {
                     <h3 className="font-semibold text-text-body mb-1">{cat.title}</h3>
                     <p className="text-sm text-text-muted">{cat.description}</p>
                     <span className="text-xs text-text-muted/60 mt-2 block">
-                      {cat.articles} artículos
+                      {faqs.filter((f) => f.category === cat.id).length} artículos
                     </span>
                   </button>
                 );
@@ -227,7 +352,7 @@ export default function HelpClient() {
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-3 gap-8">
           {/* FAQs Section */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2" id="faq-section">
             <div className="glass-panel rounded-xl border border-border-subtle overflow-hidden">
               <div className="p-6 border-b border-border-subtle">
                 <h2 className="text-lg font-semibold text-text-body">
@@ -298,15 +423,15 @@ export default function HelpClient() {
               <ul className="space-y-3">
                 {popularArticles.map((article) => (
                   <li key={article.title}>
-                    <Link href="#" className="flex items-start gap-3 group">
-                      <ArrowRight className="size-4 text-text-muted/40 mt-0.5 group-hover:text-primary transition-colors" />
-                      <div>
-                        <span className="text-sm text-text-body group-hover:text-primary transition-colors">
-                          {article.title}
-                        </span>
-                        <span className="text-xs text-text-muted/60 block">{article.category}</span>
-                      </div>
-                    </Link>
+                    <button
+                      onClick={() => handleArticleClick(article.faqCategory, article.faqQuestion)}
+                      className="flex items-start gap-3 group w-full text-left"
+                    >
+                      <ArrowRight className="size-4 text-text-muted/40 mt-0.5 group-hover:text-primary transition-colors flex-shrink-0" />
+                      <span className="text-sm text-text-body group-hover:text-primary transition-colors">
+                        {article.title}
+                      </span>
+                    </button>
                   </li>
                 ))}
               </ul>

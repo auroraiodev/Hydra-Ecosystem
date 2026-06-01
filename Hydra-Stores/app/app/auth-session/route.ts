@@ -1,106 +1,175 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { decryptCookie, COOKIE_NAME } from '@/lib/cookie-crypto';
+import { decryptCookie, encryptCookie, COOKIE_NAME } from '@/lib/cookie-crypto';
+import { COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } from '@/lib/parse-expiry';
+
+function getApiBaseUrl() {
+  const base =
+    process.env.API_URL_INTERNAL ||
+    process.env.NEXT_PUBLIC_BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://127.0.0.1:3002/api';
+  const normalized = base.trim().replace('localhost', '127.0.0.1').replace(/\/+$/, '');
+  const withApi = normalized.endsWith('/api') ? normalized : `${normalized}/api`;
+  return `${withApi}/v1`;
+}
+
+async function attemptRefresh(request: NextRequest, apiBaseUrl: string) {
+  const refreshToken = request.cookies.get('refresh-token')?.value;
+  if (!refreshToken) {
+    return null;
+  }
+
+  try {
+    const refreshRes = await fetch(`${apiBaseUrl}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!refreshRes.ok) {
+      return null;
+    }
+
+    const data = await refreshRes.json().catch(() => ({}));
+    if (!data.accessToken || !data.refreshToken) {
+      return null;
+    }
+
+    return {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    };
+  } catch (err) {
+    console.error('[Session Route] Server-side refresh error:', err);
+    return null;
+  }
+}
+
+async function fetchUserProfile(accessToken: string, apiBaseUrl: string) {
+  const backendUrl = `${apiBaseUrl}/users/profile`;
+  const profileRes = await fetch(backendUrl, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    cache: 'no-store',
+  });
+
+  if (!profileRes.ok) {
+    return null;
+  }
+
+  const result = await profileRes.json().catch(() => null);
+  if (!result) return null;
+  return result?.data !== undefined ? result.data : result;
+}
+
+function isRoleAuthorized(dbUser: any): boolean {
+  const role = dbUser?.role?.name?.toUpperCase() || dbUser?.role?.toUpperCase();
+  return role === 'SELLER' || role === 'ADMIN';
+}
 
 export async function GET(request: NextRequest) {
+  const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
+  const apiBaseUrl = getApiBaseUrl();
+
   try {
     const raw = request.cookies.get(COOKIE_NAME)?.value;
-    const token = raw ? decryptCookie(raw) : null;
+    let token = raw ? decryptCookie(raw) : null;
+    let payload: any = null;
 
-    if (!token) {
-      console.log('[Session API] No raw cookie found or decryption failed');
-      return NextResponse.json({ authenticated: false }, { status: 200 });
+    if (token) {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        try {
+          payload = JSON.parse(
+            Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')
+          );
+        } catch {
+          payload = null;
+        }
+      }
     }
 
-    // Decode JWT payload (base64url / base64) — no secret required to check structure/expiration
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      console.warn('[Session API] Invalid JWT structure');
-      return NextResponse.json({ authenticated: false }, { status: 200 });
+    const isExpired = payload?.exp && (Date.now() >= payload.exp * 1000);
+    let dbUser: any = null;
+
+    if (token && payload && !isExpired) {
+      dbUser = await fetchUserProfile(token, apiBaseUrl);
     }
 
-    let payload: any;
-    try {
-      payload = JSON.parse(
-        Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')
-      );
-    } catch (e) {
-      console.error('[Session API] Failed to parse JWT payload:', e);
-      return NextResponse.json({ authenticated: false }, { status: 200 });
-    }
+    if (!dbUser) {
+      const refreshData = await attemptRefresh(request, apiBaseUrl);
+      if (refreshData) {
+        const { accessToken, refreshToken } = refreshData;
+        dbUser = await fetchUserProfile(accessToken, apiBaseUrl);
 
-    console.log('[Session API] Decoded payload:', {
-      sub: payload.sub,
-      email: payload.email,
-      role: payload.role,
-      exp: payload.exp,
-      currentTime: Math.floor(Date.now() / 1000),
-    });
+        if (dbUser && isRoleAuthorized(dbUser)) {
+          const role = dbUser?.role?.name?.toUpperCase() || dbUser?.role?.toUpperCase();
+          const user = {
+            id: dbUser.id,
+            email: dbUser.email,
+            role,
+            first_name: dbUser.first_name,
+            last_name: dbUser.last_name,
+            avatar_url: dbUser.avatar_url,
+          };
 
-    const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
+          const response = NextResponse.json({
+            authenticated: true,
+            user,
+          });
 
-    // 1. Verify token expiration (exp claim)
-    if (payload.exp && Date.now() >= payload.exp * 1000) {
-      console.warn('[Session API] Token expired');
+          response.cookies.set(COOKIE_NAME, encryptCookie(accessToken), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
+            maxAge: COOKIE_MAX_AGE,
+            domain: cookieDomain,
+          });
+
+          response.cookies.set('refresh-token', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/',
+            maxAge: REFRESH_COOKIE_MAX_AGE,
+            domain: cookieDomain,
+          });
+
+          return response;
+        }
+      }
+
       const response = NextResponse.json(
-        { authenticated: false, error: 'Session expired' },
+        { authenticated: false, error: 'Session expired or invalid' },
         { status: 200 }
       );
       response.cookies.set(COOKIE_NAME, '', { path: '/', maxAge: 0 });
+      response.cookies.set('refresh-token', '', { path: '/', maxAge: 0 });
       if (cookieDomain) {
         response.cookies.set(COOKIE_NAME, '', { path: '/', maxAge: 0, domain: cookieDomain });
+        response.cookies.set('refresh-token', '', { path: '/', maxAge: 0, domain: cookieDomain });
       }
       return response;
     }
 
-    // 2. Fetch profile from the NestJS backend to verify the user role in the database
-    const base =
-      process.env.API_URL_INTERNAL ||
-      process.env.NEXT_PUBLIC_BACKEND_API_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      'http://127.0.0.1:3002/api';
-
-    const normalized = base.replace(/\/+$/, '');
-    const withApi = normalized.endsWith('/api') ? normalized : `${normalized}/api`;
-    const backendUrl = `${withApi}/v1/users/profile`;
-
-    const profileRes = await fetch(backendUrl, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      cache: 'no-store',
-    });
-
-    if (!profileRes.ok) {
-      console.warn('[Session API] Backend profile validation failed:', profileRes.status);
-      const response = NextResponse.json(
-        { authenticated: false, error: 'Backend validation failed' },
-        { status: 200 }
-      );
-      response.cookies.set(COOKIE_NAME, '', { path: '/', maxAge: 0 });
-      if (cookieDomain) {
-        response.cookies.set(COOKIE_NAME, '', { path: '/', maxAge: 0, domain: cookieDomain });
-      }
-      return response;
-    }
-
-    const result = await profileRes.json();
-    const dbUser = result?.data !== undefined ? result.data : result;
-
-    // 3. Verify role authorization (must be SELLER or ADMIN in database)
-    const role = dbUser?.role?.name?.toUpperCase() || dbUser?.role?.toUpperCase();
-    if (role !== 'SELLER' && role !== 'ADMIN') {
-      console.warn('[Session API] Unauthorized database role:', role);
+    if (!isRoleAuthorized(dbUser)) {
+      console.warn('[Session API] Unauthorized database role:', dbUser?.role);
       const response = NextResponse.json(
         { authenticated: false, error: 'Unauthorized role' },
         { status: 200 }
       );
       response.cookies.set(COOKIE_NAME, '', { path: '/', maxAge: 0 });
+      response.cookies.set('refresh-token', '', { path: '/', maxAge: 0 });
       if (cookieDomain) {
         response.cookies.set(COOKIE_NAME, '', { path: '/', maxAge: 0, domain: cookieDomain });
+        response.cookies.set('refresh-token', '', { path: '/', maxAge: 0, domain: cookieDomain });
       }
       return response;
     }
 
+    const role = dbUser?.role?.name?.toUpperCase() || dbUser?.role?.toUpperCase();
     const user = {
       id: dbUser.id,
       email: dbUser.email,
@@ -116,6 +185,14 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('[Session API Error]:', error);
-    return NextResponse.json({ authenticated: false }, { status: 200 });
+    const response = NextResponse.json({ authenticated: false }, { status: 200 });
+    response.cookies.set(COOKIE_NAME, '', { path: '/', maxAge: 0 });
+    response.cookies.set('refresh-token', '', { path: '/', maxAge: 0 });
+    if (cookieDomain) {
+      response.cookies.set(COOKIE_NAME, '', { path: '/', maxAge: 0, domain: cookieDomain });
+      response.cookies.set('refresh-token', '', { path: '/', maxAge: 0, domain: cookieDomain });
+    }
+    return response;
   }
 }
+
