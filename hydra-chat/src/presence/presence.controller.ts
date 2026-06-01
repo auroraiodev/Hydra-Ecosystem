@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Query, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Query, Body, Req, Param, UseGuards } from '@nestjs/common';
 import { Public } from '../auth/guards/jwt-auth.guard.js';
 import { PresenceService } from './presence.service.js';
 import { Request } from 'express';
@@ -68,9 +68,9 @@ export class PresenceController {
   }
 
   @Delete('admin/presence/block-ip/:ip')
-  async unblockIp(@Req() req: Request) {
-    const ip = decodeURIComponent(req.params.ip);
-    await this.presenceService.unblockIp(ip);
+  async unblockIp(@Param('ip') ip: string) {
+    const decodedIp = decodeURIComponent(ip);
+    await this.presenceService.unblockIp(decodedIp);
     return { data: true };
   }
 
@@ -87,9 +87,9 @@ export class PresenceController {
   }
 
   @Delete('admin/presence/block-user/:userId')
-  async unblockUser(@Req() req: Request) {
-    const userId = decodeURIComponent(req.params.userId);
-    await this.presenceService.unblockUser(userId);
+  async unblockUser(@Param('userId') userId: string) {
+    const decodedUserId = decodeURIComponent(userId);
+    await this.presenceService.unblockUser(decodedUserId);
     return { data: true };
   }
 }
